@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransmissionType {
+  OFFICIAL
+  LEAK
+  PREDICTION
+}
+
+enum TransmissionStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum CategoryType {
+  SHIP
+  PATCH
+  CREATURE
+  LOCATION
+  EVENT
+  FEATURE
+}
+
+// Main transmission model
+model Transmission {
+  id          String             @id @default(cuid())
+  displayId   String             @unique
+  title       String
+  subTitle    String             @db.Text
+  content     String?            @db.Text
+  type        TransmissionType
+  status      TransmissionStatus @default(DRAFT)
+  isHighlight Boolean            @default(false)
+
+  // Metadata
+  sourceUrl    String?
+  sourceAuthor String
+  publishedAt  DateTime?
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations - using pivot table
+  transmissionTags TransmissionTag[]
+
+  // Indexes for faster queries
+  @@index([type])
+  @@index([status])
+  @@index([sourceAuthor])
+  @@index([publishedAt])
+}
+
+// Category model for organizing tags
+model Category {
+  id          String       @id @default(cuid())
+  name        String       @unique // Display name (e.g., "Ships", "Patches")
+  slug        String       @unique // URL-friendly version (e.g., "ships", "patches")
+  type        CategoryType
+  description String?      @db.Text
+  color       String? // Hex color for UI (e.g., "#ff5500")
+
+  // Display order for UI
+  sortOrder Int @default(0)
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tags Tag[]
+
+  @@index([type])
+  @@index([slug])
+  @@index([sortOrder])
+}
+
+// Tag model - flexible categorization system
+model Tag {
+  id          String  @id @default(cuid())
+  name        String  @unique // Display name (e.g., "Ironclad", "3.24")
+  slug        String  @unique // URL-friendly version (e.g., "ironclad", "3-24")
+  description String? @db.Text
+  color       String? // Hex color for UI (e.g., "#ff5500")
+
+  // Category relationship
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Display order for UI
+  sortOrder Int @default(0)
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations - using pivot table
+  transmissionTags TransmissionTag[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([sortOrder])
+}
+
+// PIVOT TABLE - connects transmissions and tags
+model TransmissionTag {
+  transmissionId String
+  tagId          String
+
+  // Optional metadata about this specific tag assignment
+  addedAt    DateTime @default(now())
+  addedBy    String? // User ID who added this tag
+  confidence Int      @default(100) // 0-100, useful for AI-generated tags
+
+  // Relations
+  transmission Transmission @relation(fields: [transmissionId], references: [id], onDelete: Cascade)
+  tag          Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  // Composite primary key - each transmission-tag combo must be unique
+  @@id([transmissionId, tagId])
+  // Indexes for fast lookups
+  @@index([transmissionId])
+  @@index([tagId])
+  @@index([addedAt])
+}
