@@ -65,29 +65,70 @@ export default function SidebarClient({
   const toggleCategory = (categoryId: string) => {
     setActiveFilters((prev) => {
       const newFilters = new Set(prev);
-      if (newFilters.has(`category-${categoryId}`)) {
+      const category = categories.find((c) => c.id === categoryId);
+
+      if (!category) return newFilters;
+
+      const isCurrentlyActive = newFilters.has(`category-${categoryId}`);
+
+      if (isCurrentlyActive) {
+        // Deselect category and all its tags
         newFilters.delete(`category-${categoryId}`);
+        category.tags.forEach((tag) => {
+          newFilters.delete(`tag-${tag.id}`);
+        });
       } else {
+        // Select category and all its tags
         newFilters.add(`category-${categoryId}`);
+        category.tags.forEach((tag) => {
+          newFilters.add(`tag-${tag.id}`);
+        });
       }
+
       return newFilters;
     });
   };
 
-  const toggleTag = (tagId: string) => {
+  const toggleTag = (tagId: string, categoryId: string) => {
     setActiveFilters((prev) => {
       const newFilters = new Set(prev);
+      const category = categories.find((c) => c.id === categoryId);
+
+      if (!category) return newFilters;
+
+      // Toggle the tag
       if (newFilters.has(`tag-${tagId}`)) {
         newFilters.delete(`tag-${tagId}`);
       } else {
         newFilters.add(`tag-${tagId}`);
       }
+
+      // Check if all tags in this category are now selected
+      const allTagsSelected = category.tags.every((tag) =>
+        newFilters.has(`tag-${tag.id}`)
+      );
+
+      // Check if no tags in this category are selected
+      const noTagsSelected = category.tags.every(
+        (tag) => !newFilters.has(`tag-${tag.id}`)
+      );
+
+      // Auto-select/deselect parent category based on children
+      if (allTagsSelected) {
+        newFilters.add(`category-${categoryId}`);
+      } else if (noTagsSelected) {
+        newFilters.delete(`category-${categoryId}`);
+      } else {
+        // Partial selection - remove category selection but keep individual tags
+        newFilters.delete(`category-${categoryId}`);
+      }
+
       return newFilters;
     });
   };
 
   const getActiveCount = () => {
-    return activeFilters.size;
+    return Array.from(activeFilters).filter(filter => filter.startsWith('tag-')).length;
   };
 
   const isCategoryActive = (categoryId: string) => {
@@ -102,54 +143,60 @@ export default function SidebarClient({
     return category.tags.filter((tag) => isTagActive(tag.id)).length;
   };
 
+  const hasAnyActiveChildren = (category: Category) => {
+    return category.tags.some((tag) => isTagActive(tag.id));
+  };
+
   return (
-    <aside className="w-80 bg-black border-r border-white/10 flex flex-col h-screen font-mono text-sm">
-      <div className="border-b border-white/10 p-4">
-        <div className="flex items-center gap-2 text-nasa">
-          <span className="text-white">&gt;</span>
+    <aside className={styles.sidebar}>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <span className={styles.headerPrompt}>&gt;</span>
           <span className={styles.systemName}>VERSE.REPORT</span>
-          <span className="text-white/40 text-xs">v1.0.0</span>
+          <span className={styles.headerVersion}>v1.0.0</span>
         </div>
       </div>
 
-      <div className="border-b border-white/10 px-4 py-2 flex justify-between items-center">
-        <span className="text-white/60">TRANSMISSION_FILTERS</span>
-        <span className="text-nasa">[{getActiveCount()}]</span>
+      <div className={styles.filterHeader}>
+        <span className={getActiveCount() > 0 ? styles.filterTitleActive : styles.filterTitle}>TRANSMISSION_FILTERS</span>
+        <span className={getActiveCount() > 0 ? styles.activeCountHighlighted : styles.activeCount}>[{getActiveCount()}]</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div className={styles.categoriesContainer}>
         {categories.map((category) => (
-          <div key={category.id} className="space-y-1">
-            <div className="flex items-center gap-2">
+          <div key={category.id} className={styles.categoryGroup}>
+            <div className={styles.categoryHeader}>
               <button
                 onClick={() => toggleCategoryExpansion(category.id)}
-                className="text-white/40 hover:text-white transition-colors"
+                className={styles.expandButton}
               >
-                <span className="text-xs">{category.expanded ? "v" : ">"}</span>
+                <span className={styles.expandIcon}>
+                  {category.expanded ? "v" : ">"}
+                </span>
               </button>
 
               <button
                 onClick={() => toggleCategory(category.id)}
-                className="flex items-center gap-2 flex-1 hover:text-nasa transition-colors group"
+                className={styles.categoryButton}
               >
                 <span
-                  className={`text-xs ${
+                  className={`${styles.categoryCheckbox} ${
                     isCategoryActive(category.id)
-                      ? "text-nasa"
-                      : "text-white/40"
+                      ? styles.categoryCheckboxActive
+                      : styles.categoryCheckboxInactive
                   }`}
                 >
                   [{isCategoryActive(category.id) ? "X" : " "}]
                 </span>
                 <span
-                  className={`uppercase tracking-wider ${
-                    isCategoryActive(category.id)
-                      ? "text-nasa"
-                      : "text-white/80"
+                  className={`${styles.categoryName} ${
+                    hasAnyActiveChildren(category)
+                      ? styles.categoryNameActive
+                      : styles.categoryNameInactive
                   }`}
                   style={{
                     color:
-                      isCategoryActive(category.id) && category.color
+                      hasAnyActiveChildren(category) && category.color
                         ? category.color
                         : undefined,
                   }}
@@ -159,33 +206,37 @@ export default function SidebarClient({
               </button>
 
               {category.tags.length > 0 && (
-                <span className="text-white/40 text-xs">
+                <span className={getActiveTags(category) > 0 ? styles.tagCountActive : styles.tagCount}>
                   [{getActiveTags(category)}]
                 </span>
               )}
             </div>
 
             {category.expanded && category.tags.length > 0 && (
-              <div className="ml-4 space-y-1">
+              <div className={styles.tagsContainer}>
                 {category.tags.map((tag, index) => (
                   <button
                     key={tag.id}
-                    onClick={() => toggleTag(tag.id)}
-                    className="flex items-center gap-2 w-full hover:text-nasa transition-colors text-left"
+                    onClick={() => toggleTag(tag.id, category.id)}
+                    className={styles.tagButton}
                   >
-                    <span className="text-white/20">
+                    <span className={styles.tagConnector}>
                       {index === category.tags.length - 1 ? "L" : "|"}
                     </span>
                     <span
-                      className={`text-xs ${
-                        isTagActive(tag.id) ? "text-nasa" : "text-white/40"
+                      className={`${styles.tagCheckbox} ${
+                        isTagActive(tag.id)
+                          ? styles.tagCheckboxActive
+                          : styles.tagCheckboxInactive
                       }`}
                     >
                       [{isTagActive(tag.id) ? "X" : " "}]
                     </span>
                     <span
-                      className={`${
-                        isTagActive(tag.id) ? "text-nasa" : "text-white/60"
+                      className={`${styles.tagName} ${
+                        isTagActive(tag.id)
+                          ? styles.tagNameActive
+                          : styles.tagNameInactive
                       }`}
                     >
                       {tag.name}

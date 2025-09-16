@@ -3,4 +3,199 @@
   letter-spacing: 2px;
   font-size: 14px;
   flex: 1;
+  font-family: "Courier New", monospace;
+}
+
+.sidebar {
+  width: 20rem; /* w-80 */
+  background-color: #000000;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: "Courier New", monospace;
+  font-size: 0.875rem;
+}
+
+.header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-foreground);
+}
+
+.headerPrompt {
+  color: white;
+}
+
+.headerVersion {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+}
+
+.filterHeader {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filterTitle {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.filterTitleActive {
+  color: var(--accent-nasa);
+}
+
+.activeCount {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.activeCountHighlighted {
+  color: var(--accent-nasa);
+}
+
+.categoriesContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.categoryGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expandButton {
+  color: rgba(255, 255, 255, 0.4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.expandButton:hover {
+  color: white;
+}
+
+.expandIcon {
+  font-size: 0.75rem;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.categoryButton:hover {
+  color: var(--accent-nasa);
+}
+
+.categoryCheckbox {
+  font-size: 0.75rem;
+}
+
+.categoryCheckboxActive {
+  color: var(--accent-nasa);
+}
+
+.categoryCheckboxInactive {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.categoryName {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.categoryNameActive {
+  color: var(--accent-nasa);
+}
+
+.categoryNameInactive {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tagCount {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+}
+
+.tagCountActive {
+  color: white;
+  font-size: 0.75rem;
+}
+
+.tagsContainer {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tagButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.tagButton:hover {
+  color: var(--accent-nasa);
+}
+
+.tagConnector {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.tagCheckbox {
+  font-size: 0.75rem;
+}
+
+.tagCheckboxActive {
+  color: var(--accent-nasa);
+}
+
+.tagCheckboxInactive {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.tagName {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.tagNameActive {
+  color: var(--accent-nasa);
+}
+
+.tagNameInactive {
+  color: rgba(255, 255, 255, 0.6);
 }
