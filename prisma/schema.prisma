@@ -31,7 +31,6 @@ enum CategoryType {
 // Main transmission model
 model Transmission {
   id          String             @id @default(cuid())
-  displayId   String             @unique
   title       String
   subTitle    String             @db.Text
   content     String?            @db.Text
@@ -82,6 +81,26 @@ model Category {
   @@index([sortOrder])
 }
 
+// Ship family model for grouping ship variants
+model ShipFamily {
+  id   String @id @default(cuid())
+  name String @unique // Display name (e.g., "Ironclad", "Apollo")
+  slug String @unique // URL-friendly version (e.g., "ironclad", "apollo")
+
+  // Display order for UI
+  sortOrder Int @default(0)
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  variants Tag[] // All ship variant tags in this family
+
+  @@index([slug])
+  @@index([sortOrder])
+}
+
 // Tag model - flexible categorization system
 model Tag {
   id          String  @id @default(cuid())
@@ -93,6 +112,10 @@ model Tag {
   // Category relationship
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Ship family relationship (optional - only for ship tags)
+  shipFamilyId String?
+  shipFamily   ShipFamily? @relation(fields: [shipFamilyId], references: [id], onDelete: SetNull)
 
   // Display order for UI
   sortOrder Int @default(0)
@@ -106,6 +129,7 @@ model Tag {
 
   @@index([slug])
   @@index([categoryId])
+  @@index([shipFamilyId])
   @@index([sortOrder])
 }
 
