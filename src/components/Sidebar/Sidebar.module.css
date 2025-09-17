@@ -8,8 +8,8 @@
 
 .sidebar {
   width: 20rem; /* w-80 */
-  background-color: #000000;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-black);
+  border-right: 1px solid var(--border-primary);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -41,7 +41,7 @@
 }
 
 .header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-primary);
   padding: 1rem;
   position: relative;
 }
@@ -64,12 +64,12 @@
 }
 
 .headerVersion {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-subtle);
   font-size: 0.75rem;
 }
 
 .filterHeader {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-primary);
   padding: 0.5rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -77,7 +77,7 @@
 }
 
 .filterTitle {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .filterTitleActive {
@@ -85,7 +85,7 @@
 }
 
 .activeCount {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-subtle);
 }
 
 .activeCountHighlighted {
@@ -114,7 +114,7 @@
 }
 
 .expandButton {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-subtle);
   background: none;
   border: none;
   cursor: pointer;
@@ -153,7 +153,7 @@
 }
 
 .categoryCheckboxInactive {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-subtle);
 }
 
 .categoryName {
@@ -166,11 +166,11 @@
 }
 
 .categoryNameInactive {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
 }
 
 .tagCount {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-subtle);
   font-size: 0.75rem;
 }
 
@@ -203,7 +203,7 @@
 }
 
 .tagConnector {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-ghost);
 }
 
 .tagCheckbox {
@@ -215,11 +215,11 @@
 }
 
 .tagCheckboxInactive {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-subtle);
 }
 
 .tagName {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 .tagNameActive {
@@ -227,7 +227,7 @@
 }
 
 .tagNameInactive {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
 }
 
 /* Mobile overlay */
@@ -238,7 +238,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-overlay-light);
   z-index: 999;
 }
 
@@ -256,8 +256,8 @@
   left: 0.5rem;
   transform: translateY(-50%);
   z-index: 1001;
-  background: rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-overlay-medium);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   width: 44px;
   height: 44px;
@@ -276,9 +276,9 @@
 }
 
 .mobileCloseButton:hover {
-  background: rgba(255, 85, 0, 0.15);
+  background: var(--nasa-medium);
   border-color: var(--color-nasa);
-  box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
+  box-shadow: 0 0 10px var(--nasa-glow);
 }
 
 .closeIcon {
@@ -289,5 +289,5 @@
 }
 
 .mobileCloseButton:hover .closeIcon {
-  color: #ff6600;
+  color: var(--color-orange-bright);
 }

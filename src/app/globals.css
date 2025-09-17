@@ -20,6 +20,48 @@
   --transmission-official: #60a5fa;
   --transmission-leak: var(--accent-warning);
   --transmission-prediction: #a78bfa;
+
+  /* Base UI Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gray-dark: #888888;
+  --color-text-primary: #ededed;
+  --color-text-secondary: rgba(237, 237, 237, 0.8);
+  --color-text-muted: rgba(237, 237, 237, 0.6);
+  --color-text-faded: rgba(237, 237, 237, 0.5);
+  --color-text-subtle: rgba(237, 237, 237, 0.4);
+  --color-text-ghost: rgba(255, 255, 255, 0.2);
+
+  /* Border Colors */
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.05);
+  --border-subtle: rgba(255, 255, 255, 0.03);
+  --border-faint: rgba(255, 255, 255, 0.02);
+
+  /* Background Colors */
+  --bg-overlay-dark: rgba(0, 0, 0, 0.95);
+  --bg-overlay-medium: rgba(0, 0, 0, 0.9);
+  --bg-overlay-light: rgba(0, 0, 0, 0.5);
+  --bg-surface-raised: rgba(255, 255, 255, 0.1);
+  --bg-surface-medium: rgba(255, 255, 255, 0.08);
+  --bg-surface-subtle: rgba(255, 255, 255, 0.05);
+  --bg-surface-faint: rgba(255, 255, 255, 0.02);
+  --bg-surface-trace: rgba(255, 255, 255, 0.01);
+
+  /* NASA Orange Variants */
+  --nasa-glow: rgba(255, 85, 0, 0.3);
+  --nasa-light: rgba(255, 85, 0, 0.2);
+  --nasa-medium: rgba(255, 85, 0, 0.15);
+  --nasa-subtle: rgba(255, 85, 0, 0.1);
+  --nasa-faint: rgba(255, 85, 0, 0.05);
+  --nasa-trace: rgba(255, 85, 0, 0.02);
+
+  /* Shadow Colors */
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.2);
+
+  /* Specific Orange Values */
+  --color-orange-bright: #ff6600;
 }
 
 @theme inline {

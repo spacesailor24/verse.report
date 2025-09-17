@@ -10,7 +10,7 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .dateTitle {
@@ -24,11 +24,11 @@
 
 .transmissionCount {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   font-family: var(--font-mono), monospace;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-surface-subtle);
   padding: 0.25rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-primary);
   clip-path: polygon(
     0 0,
     calc(100% - 8px) 0,
@@ -54,8 +54,8 @@
   padding: 4rem 2rem;
   margin: 2rem auto;
   max-width: 500px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface-faint);
+  border: 1px solid var(--border-primary);
   clip-path: polygon(
     0 16px,
     16px 0,
@@ -84,7 +84,7 @@
 }
 
 .emptyDescription {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-text-muted);
   font-size: 0.875rem;
   line-height: 1.5;
   max-width: 300px;
