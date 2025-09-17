@@ -144,8 +144,8 @@
     var(--nasa-trace) 100%
   );
   border-color: var(--color-nasa);
-  box-shadow: 0 0 30px var(--nasa-glow),
-    inset 0 0 0 1px var(--nasa-light), 0 0 60px var(--nasa-subtle);
+  box-shadow: 0 0 30px var(--nasa-glow), inset 0 0 0 1px var(--nasa-light),
+    0 0 60px var(--nasa-subtle);
   transform: translateY(-1px);
 }
 
@@ -230,8 +230,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .typeLabel {
@@ -342,4 +347,160 @@
 
 .transmissionBox:hover .openAction {
   color: var(--color-nasa);
+}
+
+/* Expanded state styles */
+.expanded {
+  margin-bottom: 2rem;
+}
+
+/* Expanded content section */
+.expandedContent {
+  padding: 0;
+  overflow: hidden;
+  animation: expandDown 0.3s ease-out;
+}
+
+@keyframes expandDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+/* Markdown content styling */
+.markdownContent {
+  padding: 0rem 1.5rem 1.5rem 1.5rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+}
+
+.markdownContent h1,
+.markdownContent h2,
+.markdownContent h3,
+.markdownContent h4,
+.markdownContent h5,
+.markdownContent h6 {
+  color: var(--color-nasa);
+  margin: 1.5rem 0 0.75rem 0;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.markdownContent h1 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 0.5rem;
+}
+
+.markdownContent h2 {
+  font-size: 1.25rem;
+}
+
+.markdownContent h3 {
+  font-size: 1.125rem;
+}
+
+.markdownContent p {
+  margin: 0.75rem 0;
+}
+
+.markdownContent code {
+  background: var(--bg-surface-subtle);
+  color: var(--color-nasa);
+  padding: 0.125rem 0.25rem;
+  border-radius: 2px;
+  font-size: 0.8em;
+}
+
+.markdownContent pre {
+  background: var(--bg-surface-subtle);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdownContent pre code {
+  background: none;
+  padding: 0;
+  color: var(--color-text-primary);
+}
+
+.markdownContent blockquote {
+  border-left: 3px solid var(--color-nasa);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.markdownContent ul,
+.markdownContent ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdownContent li {
+  margin: 0.25rem 0;
+}
+
+.markdownContent a {
+  color: var(--color-nasa);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.markdownContent a:hover {
+  border-bottom-color: var(--color-nasa);
+}
+
+.markdownContent strong {
+  color: var(--color-text-primary);
+  font-weight: bold;
+}
+
+.markdownContent em {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.markdownContent hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border-primary),
+    transparent
+  );
+  margin: 2rem 0;
+}
+
+.markdownContent table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border: 1px solid var(--border-primary);
+}
+
+.markdownContent th,
+.markdownContent td {
+  padding: 0.5rem;
+  border: 1px solid var(--border-secondary);
+  text-align: left;
+}
+
+.markdownContent th {
+  background: var(--bg-surface-subtle);
+  color: var(--color-nasa);
+  font-weight: bold;
 }

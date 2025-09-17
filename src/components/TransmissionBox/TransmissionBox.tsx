@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import styles from "./TransmissionBox.module.css";
 
-export type TransmissionType = 'OFFICIAL' | 'LEAK' | 'PREDICTION';
+export type TransmissionType = "OFFICIAL" | "LEAK" | "PREDICTION";
 
 export interface Transmission {
   id: string;
@@ -26,48 +28,68 @@ interface TransmissionBoxProps {
 }
 
 const typeColors = {
-  OFFICIAL: 'var(--transmission-official)',
-  LEAK: 'var(--transmission-leak)',
-  PREDICTION: 'var(--transmission-prediction)',
+  OFFICIAL: "var(--transmission-official)",
+  LEAK: "var(--transmission-leak)",
+  PREDICTION: "var(--transmission-prediction)",
 };
 
 const typeDotColors = {
-  OFFICIAL: 'var(--transmission-official)',
-  LEAK: 'var(--transmission-leak)',
-  PREDICTION: 'var(--transmission-prediction)',
+  OFFICIAL: "var(--transmission-official)",
+  LEAK: "var(--transmission-leak)",
+  PREDICTION: "var(--transmission-prediction)",
 };
 
 const getCategoryColor = (categorySlug: string) => {
   const colorMap = {
-    'ships': 'var(--category-ship)',
-    'patches': 'var(--category-patch)',
-    'creatures': 'var(--category-creature)',
-    'locations': 'var(--category-location)',
-    'events': 'var(--category-event)',
-    'features': 'var(--category-feature)',
+    ships: "var(--category-ship)",
+    patches: "var(--category-patch)",
+    creatures: "var(--category-creature)",
+    locations: "var(--category-location)",
+    events: "var(--category-event)",
+    features: "var(--category-feature)",
   };
-  return colorMap[categorySlug as keyof typeof colorMap] || '#888888';
+  return colorMap[categorySlug as keyof typeof colorMap] || "#888888";
 };
 
-export default function TransmissionBox({ transmission }: TransmissionBoxProps) {
+export default function TransmissionBox({
+  transmission,
+}: TransmissionBoxProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleClick = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   const formatDate = (date: string | Date) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    const month = dateObj.toLocaleDateString('en-US', { month: 'long' });
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    const month = dateObj.toLocaleDateString("en-US", { month: "long" });
     const day = dateObj.getDate();
-    const suffix = day === 1 || day === 21 || day === 31 ? 'st' :
-                   day === 2 || day === 22 ? 'nd' :
-                   day === 3 || day === 23 ? 'rd' : 'th';
+    const suffix =
+      day === 1 || day === 21 || day === 31
+        ? "st"
+        : day === 2 || day === 22
+        ? "nd"
+        : day === 3 || day === 23
+        ? "rd"
+        : "th";
     return `${month} ${day}${suffix}`;
   };
 
   const generateFileId = (title: string, date: string | Date) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    const hash = title.slice(0, 3).toUpperCase() + dateObj.getDate().toString().padStart(2, '0');
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    const hash =
+      title.slice(0, 3).toUpperCase() +
+      dateObj.getDate().toString().padStart(2, "0");
     return `VR-${hash}-${dateObj.getFullYear().toString().slice(-2)}`;
   };
 
   return (
-    <div className={styles.transmissionBox}>
+    <div
+      className={`${styles.transmissionBox} ${
+        isExpanded ? styles.expanded : ""
+      }`}
+      onClick={handleClick}
+    >
       {/* Sci-fi geometric elements */}
       <div className={styles.sciFiElements}></div>
       <div className={styles.detailLines}></div>
@@ -89,7 +111,9 @@ export default function TransmissionBox({ transmission }: TransmissionBoxProps) 
               {transmission.type}
             </span>
             <span className={styles.separator}>|</span>
-            <span className={styles.fileId}>{generateFileId(transmission.title, transmission.publishedAt)}</span>
+            <span className={styles.fileId}>
+              {generateFileId(transmission.title, transmission.publishedAt)}
+            </span>
             <span className={styles.separator}>|</span>
             <div className={styles.tags}>
               {transmission.tags.map((tag) => (
@@ -115,19 +139,30 @@ export default function TransmissionBox({ transmission }: TransmissionBoxProps) 
                     onClick={(e) => e.stopPropagation()}
                   >
                     {transmission.sourceAuthor}
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                      <polyline points="15,3 21,3 21,9"/>
-                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15,3 21,3 21,9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
                     </svg>
                   </a>
                 ) : (
-                  <span className={styles.sourceAuthor}>{transmission.sourceAuthor}</span>
+                  <span className={styles.sourceAuthor}>
+                    {transmission.sourceAuthor}
+                  </span>
                 )}
                 <span className={styles.separator}>|</span>
               </>
             )}
-            <span className={styles.date}>{formatDate(transmission.publishedAt)}</span>
+            <span className={styles.date}>
+              {formatDate(transmission.publishedAt)}
+            </span>
           </div>
         </div>
       </div>
@@ -136,13 +171,9 @@ export default function TransmissionBox({ transmission }: TransmissionBoxProps) 
       <div className={styles.contentArea}>
         <div className={styles.contentHeader}>
           <div className={styles.titleSection}>
-            <h3 className={styles.title}>
-              {transmission.title}
-            </h3>
+            <h3 className={styles.title}>{transmission.title}</h3>
             {transmission.summary && (
-              <p className={styles.summary}>
-                {transmission.summary}
-              </p>
+              <p className={styles.summary}>{transmission.summary}</p>
             )}
           </div>
         </div>
@@ -150,11 +181,22 @@ export default function TransmissionBox({ transmission }: TransmissionBoxProps) 
         {/* Actions */}
         <div className={styles.actions}>
           <div className={styles.openAction}>
-            <span>OPEN_TRANSMISSION</span>
-            <span>»</span>
+            <span>
+              {isExpanded ? "CLOSE_TRANSMISSION" : "OPEN_TRANSMISSION"}
+            </span>
+            <span>{isExpanded ? "«" : "»"}</span>
           </div>
         </div>
       </div>
+
+      {/* Expanded Content */}
+      {isExpanded && (
+        <div className={styles.expandedContent}>
+          <div className={styles.markdownContent}>
+            <ReactMarkdown>{transmission.content}</ReactMarkdown>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
