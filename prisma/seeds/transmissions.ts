@@ -1,102 +1,162 @@
 import { PrismaClient, TransmissionType, TransmissionStatus } from '../../src/generated/prisma'
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import { join } from 'path'
+
+interface FrontMatter {
+  title: string
+  subTitle: string
+  type: string
+  tags: string[]
+  publishedAt: string
+  sourceAuthor: string
+  sourceUrl: string | null
+}
 
 export async function seedTransmissions(prisma: PrismaClient) {
   console.log('📡 Seeding transmissions...')
 
-  // Get some tags for linking
-  const ironcladAssaultTag = await prisma.tag.findUnique({ where: { slug: 'ironclad-assault' } })
-  const patch431Tag = await prisma.tag.findUnique({ where: { slug: '4-3-1' } })
-  const nyxTag = await prisma.tag.findUnique({ where: { slug: 'nyx' } })
-
-  if (!ironcladAssaultTag || !patch431Tag || !nyxTag) {
-    throw new Error('Tags must be seeded before transmissions')
-  }
-
-  // Helper function to read markdown content
-  const readMarkdownContent = (filename: string): string => {
-    const filePath = join(__dirname, 'content', 'transmissions', filename)
-    return readFileSync(filePath, 'utf-8')
-  }
-
-  const transmissions = [
-    {
-      title: 'Ironclad Assault Ship Unveiled',
-      subTitle: 'Drake reveals new heavy assault ship designed for ground operations',
-      content: readMarkdownContent('ironclad-assault-unveiled.md'),
-      type: TransmissionType.OFFICIAL,
-      status: TransmissionStatus.PUBLISHED,
-      isHighlight: true,
-      sourceAuthor: 'Cloud Imperium Games',
-      sourceUrl: 'https://robertsspaceindustries.com/ironclad',
-      publishedAt: new Date('2024-01-15T10:00:00Z'),
-    },
-    {
-      title: 'Patch 4.3.1 PU Release Notes',
-      subTitle: 'Latest update brings the Apollo Triage and Medivac',
-      content: readMarkdownContent('patch-4-3-1-release.md'),
-      type: TransmissionType.OFFICIAL,
-      status: TransmissionStatus.PUBLISHED,
-      isHighlight: false,
-      sourceAuthor: 'CIG Development Team',
-      sourceUrl: 'https://robertsspaceindustries.com/spectrum/community/SC/forum/190048/thread/star-citizen-alpha-4-3-1-live',
-      publishedAt: new Date('2024-01-20T14:30:00Z'),
-    },
-    {
-      title: 'Nyx System Jump Point Discovered',
-      subTitle: 'Community discovers jump point location to Nyx system',
-      content: readMarkdownContent('nyx-jump-point-discovered.md'),
-      type: TransmissionType.LEAK,
-      status: TransmissionStatus.PUBLISHED,
-      isHighlight: true,
-      sourceAuthor: 'SCLeaks',
-      sourceUrl: null,
-      publishedAt: new Date('2024-01-22T09:15:00Z'),
-    },
-  ]
-
-  // Create transmissions and link tags
-  let index = 0
-  for (const transmission of transmissions) {
-    // Always create fresh data in seed file
-    const created = await prisma.transmission.create({
-      data: transmission
-    })
-
-    // Link tags to transmissions based on index
-    if (index === 0) { // First transmission - Ironclad
-      await prisma.transmissionTag.create({
-        data: {
-          transmissionId: created.id,
-          tagId: ironcladAssaultTag.id,
-          confidence: 100,
-        },
-      })
+  // Helper function to parse frontmatter from markdown
+  const parseFrontMatter = (content: string): { frontMatter: FrontMatter; content: string } => {
+    const lines = content.split('\n')
+    if (lines[0] !== '---') {
+      throw new Error('Invalid frontmatter format')
     }
 
-    if (index === 1) { // Second transmission - Patch
-      await prisma.transmissionTag.create({
-        data: {
-          transmissionId: created.id,
-          tagId: patch431Tag.id,
-          confidence: 100,
-        },
-      })
+    let frontMatterEnd = -1
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i] === '---') {
+        frontMatterEnd = i
+        break
+      }
     }
 
-    if (index === 2) { // Third transmission - Nyx
-      await prisma.transmissionTag.create({
-        data: {
-          transmissionId: created.id,
-          tagId: nyxTag.id,
-          confidence: 100,
-        },
-      })
+    if (frontMatterEnd === -1) {
+      throw new Error('Frontmatter not closed')
     }
 
-    index++
+    const frontMatterLines = lines.slice(1, frontMatterEnd)
+    const contentLines = lines.slice(frontMatterEnd + 1)
+
+    const frontMatter: any = {}
+    let currentKey = ''
+    let isArray = false
+
+    for (const line of frontMatterLines) {
+      if (line.startsWith('  - ')) {
+        if (isArray && currentKey) {
+          frontMatter[currentKey].push(line.substring(4))
+        }
+      } else if (line.includes(':')) {
+        const [key, ...valueParts] = line.split(':')
+        const value = valueParts.join(':').trim()
+        currentKey = key.trim()
+
+        if (value === '' && frontMatterLines[frontMatterLines.indexOf(line) + 1]?.startsWith('  - ')) {
+          frontMatter[currentKey] = []
+          isArray = true
+        } else {
+          frontMatter[currentKey] = value === 'null' ? null : value
+          isArray = false
+        }
+      }
+    }
+
+    return {
+      frontMatter: frontMatter as FrontMatter,
+      content: contentLines.join('\n')
+    }
   }
 
-  console.log(`✅ Created ${transmissions.length} transmissions with tags`)
+  // Read all transmission files
+  const transmissionsDir = join(__dirname, 'content', 'transmissions')
+  const files = readdirSync(transmissionsDir).filter(file => file.endsWith('.md'))
+
+  console.log(`Found ${files.length} transmission files`)
+
+  let createdCount = 0
+
+  for (const file of files) {
+    try {
+      const filePath = join(transmissionsDir, file)
+      const rawContent = readFileSync(filePath, 'utf-8')
+      const { frontMatter, content } = parseFrontMatter(rawContent)
+
+      // Map type string to enum
+      const getTransmissionType = (type: string): TransmissionType => {
+        const typeMap: Record<string, TransmissionType> = {
+          'OFFICIAL': TransmissionType.OFFICIAL,
+          'LEAK': TransmissionType.LEAK,
+          'CRITICAL_ALERT': TransmissionType.OFFICIAL,
+          'EVENT': TransmissionType.OFFICIAL,
+          'ANNOUNCEMENT': TransmissionType.OFFICIAL,
+          'MILITARY_ACTION': TransmissionType.OFFICIAL,
+          'DISCOVERY': TransmissionType.LEAK,
+          'MISSING_VESSEL': TransmissionType.OFFICIAL,
+          'SHIP_DEPLOYMENT': TransmissionType.OFFICIAL,
+          'ARCHAEOLOGICAL': TransmissionType.PREDICTION,
+          'MILITARY_UPGRADE': TransmissionType.OFFICIAL,
+          'NAVIGATION_WARNING': TransmissionType.OFFICIAL,
+          'VICTORY': TransmissionType.OFFICIAL,
+          'SHIP_TEST': TransmissionType.OFFICIAL,
+          'FIRST_CONTACT': TransmissionType.PREDICTION,
+          'XENOBIOLOGY': TransmissionType.LEAK,
+          'INDUSTRIAL_ACCIDENT': TransmissionType.OFFICIAL,
+          'MILITARY_DEPLOYMENT': TransmissionType.OFFICIAL,
+          'SALVAGE_DISCOVERY': TransmissionType.LEAK,
+          'LOGISTICS_ACHIEVEMENT': TransmissionType.OFFICIAL,
+          'SHIP_UPGRADE': TransmissionType.OFFICIAL,
+          'CREATURE_ENCOUNTER': TransmissionType.LEAK,
+          'PIRACY_INCIDENT': TransmissionType.OFFICIAL,
+          'RESCUE_OPERATION': TransmissionType.OFFICIAL,
+          'TRADE_ROUTE': TransmissionType.OFFICIAL,
+          'DIPLOMATIC_EVENT': TransmissionType.OFFICIAL,
+          'RACING_EVENT': TransmissionType.OFFICIAL,
+          'PATROL_ASSIGNMENT': TransmissionType.OFFICIAL,
+          'SCIENTIFIC_BREAKTHROUGH': TransmissionType.LEAK,
+          'DELIVERY_RECORD': TransmissionType.OFFICIAL,
+          'STEALTH_MISSION': TransmissionType.OFFICIAL,
+          'INTELLIGENCE_DISCOVERY': TransmissionType.PREDICTION,
+          'ESCORT_MISSION': TransmissionType.OFFICIAL,
+        }
+        return typeMap[type] || TransmissionType.LEAK
+      }
+
+      // Create transmission
+      const transmission = await prisma.transmission.create({
+        data: {
+          title: frontMatter.title,
+          subTitle: frontMatter.subTitle,
+          content: content,
+          type: getTransmissionType(frontMatter.type),
+          status: TransmissionStatus.PUBLISHED,
+          isHighlight: Math.random() > 0.7, // 30% chance of highlight
+          sourceAuthor: frontMatter.sourceAuthor,
+          sourceUrl: frontMatter.sourceUrl,
+          publishedAt: new Date(frontMatter.publishedAt),
+        }
+      })
+
+      // Link tags to transmission
+      for (const tagSlug of frontMatter.tags) {
+        const tag = await prisma.tag.findUnique({ where: { slug: tagSlug } })
+        if (tag) {
+          await prisma.transmissionTag.create({
+            data: {
+              transmissionId: transmission.id,
+              tagId: tag.id,
+              confidence: 95 + Math.floor(Math.random() * 5), // 95-100% confidence
+            }
+          })
+        } else {
+          console.warn(`Tag not found: ${tagSlug} for transmission: ${frontMatter.title}`)
+        }
+      }
+
+      createdCount++
+    } catch (error) {
+      console.error(`Error processing ${file}:`, error)
+    }
+  }
+
+  console.log(`✅ Created ${createdCount} transmissions with tags`)
 }
