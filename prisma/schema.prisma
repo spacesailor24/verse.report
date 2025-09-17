@@ -64,7 +64,8 @@ model Category {
   slug        String       @unique // URL-friendly version (e.g., "ships", "patches")
   type        CategoryType
   description String?      @db.Text
-  color       String? // Hex color for UI (e.g., "#ff5500")
+  // TODO: Should remove this from the DB and handle via CSS variables
+  color       String?
 
   // Display order for UI
   sortOrder Int @default(0)

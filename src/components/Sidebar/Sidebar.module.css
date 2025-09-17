@@ -169,7 +169,7 @@
 }
 
 .tagButton:hover {
-  color: var(--accent-nasa);
+  color: white;
 }
 
 .tagConnector {
@@ -181,7 +181,7 @@
 }
 
 .tagCheckboxActive {
-  color: var(--accent-nasa);
+  color: white;
 }
 
 .tagCheckboxInactive {
@@ -193,7 +193,7 @@
 }
 
 .tagNameActive {
-  color: var(--accent-nasa);
+  color: white;
 }
 
 .tagNameInactive {

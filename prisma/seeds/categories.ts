@@ -9,7 +9,7 @@ export async function seedCategories(prisma: PrismaClient) {
       slug: 'ships',
       type: CategoryType.SHIP,
       description: 'Spacecraft, vehicles, and ship-related content',
-      color: '#00D9FF',
+      color: '#00D4FF',
       sortOrder: 1,
     },
     {
@@ -17,7 +17,7 @@ export async function seedCategories(prisma: PrismaClient) {
       slug: 'patches',
       type: CategoryType.PATCH,
       description: 'Evo, PTU, and PU patches',
-      color: '#FC3D21',
+      color: '#FF3366',
       sortOrder: 2,
     },
     {
@@ -25,7 +25,7 @@ export async function seedCategories(prisma: PrismaClient) {
       slug: 'creatures',
       type: CategoryType.CREATURE,
       description: 'Alien life forms, wildlife, and creatures',
-      color: '#FFFB00',
+      color: '#66FF33',
       sortOrder: 3,
     },
     {
@@ -33,7 +33,7 @@ export async function seedCategories(prisma: PrismaClient) {
       slug: 'locations',
       type: CategoryType.LOCATION,
       description: 'Planets, systems, stations, and locations',
-      color: '#0B3D91',
+      color: '#9966FF',
       sortOrder: 4,
     },
     {
@@ -41,7 +41,7 @@ export async function seedCategories(prisma: PrismaClient) {
       slug: 'events',
       type: CategoryType.EVENT,
       description: 'In-game events, community events, and special occasions',
-      color: '#5A708C',
+      color: '#FFD700',
       sortOrder: 5,
     },
     {
@@ -49,7 +49,7 @@ export async function seedCategories(prisma: PrismaClient) {
       slug: 'features',
       type: CategoryType.FEATURE,
       description: 'Game mechanics, features, and gameplay systems',
-      color: '#00FFB2',
+      color: '#00FFAA',
       sortOrder: 6,
     },
   ]
