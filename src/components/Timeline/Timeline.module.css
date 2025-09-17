@@ -13,17 +13,21 @@
   margin: 0 auto;
 }
 
+
 /* Month selector row with year dropdown */
 .monthRow {
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.01);
   padding: 0.6rem 1rem 0.5rem 1rem;
+  gap: 1rem; /* Ensure proper spacing between year dropdown and month scroller */
 }
 
 .yearDropdownContainer {
-  margin-right: 1rem;
   position: relative;
+  flex-shrink: 0; /* Don't shrink the year dropdown */
+  z-index: 10; /* Ensure dropdown menu appears above other content */
+  width: 80px; /* Explicit width to ensure it takes up space */
 }
 
 .yearDropdown {
@@ -40,7 +44,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  min-width: 80px;
+  width: 80px;
+  max-width: 80px;
   outline: none;
   border-radius: 0;
 }
@@ -107,11 +112,19 @@
 
 .monthScroller {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   overflow-x: auto;
   flex: 1;
+  min-width: 0; /* Allow shrinking */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 85, 0, 0.3) rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+@media (min-width: 1900px) {
+  .monthScroller {
+    justify-content: center;
+  }
 }
 
 .monthScroller::-webkit-scrollbar {
@@ -140,8 +153,9 @@
   white-space: nowrap;
   position: relative;
   text-align: center;
-  flex: 1;
-  min-width: 0;
+  flex: none;
+  min-width: 120px;
+  width: 120px;
 }
 
 .monthButton:hover {
@@ -191,11 +205,17 @@
 
 .dayScroller {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   overflow-x: auto;
   /* padding: 2px 0; */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 85, 0, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+@media (min-width: 1560px) {
+  .dayScroller {
+    justify-content: center;
+  }
 }
 
 .dayScroller::-webkit-scrollbar {
@@ -221,7 +241,8 @@
   cursor: pointer;
   transition: all 0.15s ease;
   width: 40px;
-  flex-shrink: 0;
+  min-width: 40px;
+  flex: none;
   position: relative;
   text-align: center;
 }
