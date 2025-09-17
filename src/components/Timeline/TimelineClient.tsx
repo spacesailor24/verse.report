@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import styles from "./Timeline.module.css";
+import { useMobileMenu } from "@/contexts/MobileMenuContext";
 
 interface TimelineClientProps {
   onYearChange?: (year: number) => void;
@@ -18,6 +19,7 @@ export default function TimelineClient({
   availableYears,
   dateAvailability,
 }: TimelineClientProps) {
+  const { toggleMobileMenu } = useMobileMenu();
   // Find the closest available date to today
   const getClosestAvailableDate = () => {
     const today = new Date();
@@ -137,11 +139,23 @@ export default function TimelineClient({
     onDayChange?.(day);
   };
 
+
   return (
     <nav className={styles.timelineNav}>
       <div className={styles.navContainer}>
-        {/* Month selector row with year dropdown */}
+        {/* Month selector row with year dropdown and mobile hamburger */}
         <div className={styles.monthRow}>
+          {/* Mobile hamburger button */}
+          <button
+            className={styles.hamburgerButton}
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            <span className={styles.hamburgerLine}></span>
+            <span className={styles.hamburgerLine}></span>
+            <span className={styles.hamburgerLine}></span>
+          </button>
+
           <div className={styles.yearDropdownContainer} ref={dropdownRef}>
             <button
               className={styles.yearDropdown}

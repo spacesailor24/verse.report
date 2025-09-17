@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
+import { useMobileMenu } from "@/contexts/MobileMenuContext";
 
 interface ShipFamily {
   id: string;
@@ -47,6 +48,7 @@ interface SidebarClientProps {
 export default function SidebarClient({
   initialCategories,
 }: SidebarClientProps) {
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
   const [categories, setCategories] = useState<Category[]>(
     initialCategories.map((category) => ({ ...category, expanded: false }))
   );
@@ -148,14 +150,23 @@ export default function SidebarClient({
   };
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <span className={styles.headerPrompt}>&gt;</span>
-          <span className={styles.systemName}>VERSE.REPORT</span>
-          <span className={styles.headerVersion}>v1.0.0</span>
+    <>
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className={styles.mobileOverlay}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      <aside className={`${styles.sidebar} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
+        <div className={styles.header}>
+          <div className={styles.headerContent}>
+            <span className={styles.headerPrompt}>&gt;</span>
+            <span className={styles.systemName}>VERSE.REPORT</span>
+            <span className={styles.headerVersion}>v1.0.0</span>
+          </div>
         </div>
-      </div>
 
       <div className={styles.filterHeader}>
         <span className={getActiveCount() > 0 ? styles.filterTitleActive : styles.filterTitle}>TRANSMISSION_FILTERS</span>
@@ -249,5 +260,6 @@ export default function SidebarClient({
         ))}
       </div>
     </aside>
+    </>
   );
 }

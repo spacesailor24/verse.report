@@ -15,6 +15,21 @@
   height: 100vh;
   font-family: "Courier New", monospace;
   font-size: 0.875rem;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 1279px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+
+  .sidebarMobileOpen {
+    transform: translateX(60px);
+  }
 }
 
 .header {
@@ -198,4 +213,22 @@
 
 .tagNameInactive {
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* Mobile overlay */
+.mobileOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+@media (max-width: 1279px) {
+  .mobileOverlay {
+    display: block;
+  }
 }
