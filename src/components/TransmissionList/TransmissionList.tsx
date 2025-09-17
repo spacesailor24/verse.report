@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useFilters } from "@/contexts/FilterContext";
 import TransmissionListClient from "./TransmissionListClient";
+import TransmissionSkeleton from "../TransmissionBox/TransmissionSkeleton";
 import { Transmission } from "../TransmissionBox/TransmissionBox";
 
 interface TransmissionListProps {
@@ -115,20 +116,11 @@ export default function TransmissionList({
         selectedDate={selectedDate}
         loading={loading}
         hasActiveFilters={hasActiveFilters()}
+        loadingMore={loadingMore}
       />
       {/* Infinite scroll trigger */}
       <div ref={observerTarget} style={{ height: '20px', margin: '20px 0' }}>
-        {loadingMore && (
-          <div style={{ textAlign: 'center', color: 'var(--color-nasa)' }}>
-            Loading more transmissions...
-          </div>
-        )}
       </div>
-      {!hasMore && transmissions.length > 0 && (
-        <div style={{ textAlign: 'center', color: 'var(--color-nasa)', margin: '20px 0' }}>
-          No more transmissions
-        </div>
-      )}
     </>
   );
 }

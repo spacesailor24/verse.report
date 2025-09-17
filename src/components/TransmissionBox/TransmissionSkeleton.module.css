@@ -1,0 +1,257 @@
+.transmissionSkeleton {
+  background: linear-gradient(
+      135deg,
+      var(--bg-surface-faint) 0%,
+      var(--bg-surface-faint) 100%
+    ),
+    linear-gradient(
+      45deg,
+      var(--nasa-trace) 0%,
+      transparent 20%,
+      transparent 80%,
+      var(--nasa-trace) 100%
+    );
+  border: 1px solid var(--border-primary);
+  backdrop-filter: blur(10px);
+  position: relative;
+  box-shadow: inset 0 1px 0 var(--bg-surface-subtle),
+    inset 1px 0 0 var(--bg-surface-faint), 0 2px 4px var(--shadow-light);
+  clip-path: polygon(
+    0 8px,
+    8px 0,
+    calc(100% - 24px) 0,
+    calc(100% - 16px) 8px,
+    calc(100% - 8px) 8px,
+    100% 16px,
+    100% calc(100% - 16px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    24px 100%,
+    16px calc(100% - 8px),
+    8px calc(100% - 8px),
+    0 calc(100% - 16px)
+  );
+  overflow: hidden;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+/* Corner accent elements */
+.transmissionSkeleton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(-45deg, var(--color-nasa), transparent 70%);
+  opacity: 0.1;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.transmissionSkeleton::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, var(--color-nasa), transparent 70%);
+  opacity: 0.1;
+  clip-path: polygon(0 100%, 0 0, 100% 100%);
+}
+
+/* Sci-fi elements */
+.sciFiElements {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+.sciFiElements::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(-90deg, var(--color-nasa), transparent);
+}
+
+.detailLines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+}
+
+.detailLines::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 8px;
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(0deg, var(--color-nasa), transparent);
+}
+
+.circuitPattern {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 2px;
+  height: 20px;
+  transform: translateY(-50%);
+  opacity: 0.05;
+  background: repeating-linear-gradient(
+    0deg,
+    var(--color-nasa) 0px,
+    var(--color-nasa) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Header Bar */
+.headerBar {
+  background: var(--bg-surface-subtle);
+  border-bottom: 1px solid var(--border-primary);
+  padding: 0.5rem 1rem;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .leftSection {
+    width: 100%;
+  }
+
+  .rightSection {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Content Area */
+.contentArea {
+  padding: 1rem;
+}
+
+.contentHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.titleSection {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Skeleton elements */
+.skeletonText {
+  height: 0.75rem;
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-subtle) 25%,
+    var(--bg-surface-medium) 50%,
+    var(--bg-surface-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 2px;
+}
+
+.skeletonDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-subtle) 25%,
+    var(--bg-surface-medium) 50%,
+    var(--bg-surface-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonTitle {
+  height: 1rem;
+  width: 60%;
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-subtle) 25%,
+    var(--bg-surface-medium) 50%,
+    var(--bg-surface-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.skeletonSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Pulsing animation for the entire skeleton */
+.transmissionSkeleton {
+  animation: skeletonPulse 2s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}

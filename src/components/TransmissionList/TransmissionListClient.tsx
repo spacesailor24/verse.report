@@ -3,6 +3,7 @@
 import TransmissionBox, {
   Transmission,
 } from "../TransmissionBox/TransmissionBox";
+import TransmissionSkeleton from "../TransmissionBox/TransmissionSkeleton";
 import styles from "./TransmissionList.module.css";
 
 interface TransmissionListClientProps {
@@ -10,6 +11,7 @@ interface TransmissionListClientProps {
   selectedDate?: { year: number; month: number; day: number };
   loading?: boolean;
   hasActiveFilters?: boolean;
+  loadingMore?: boolean;
 }
 
 export default function TransmissionListClient({
@@ -17,16 +19,15 @@ export default function TransmissionListClient({
   selectedDate,
   loading = false,
   hasActiveFilters = false,
+  loadingMore = false,
 }: TransmissionListClientProps) {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loadingState}>
-          <div className={styles.loadingIcon}>⟳</div>
-          <h3 className={styles.loadingTitle}>LOADING TRANSMISSIONS...</h3>
-          <p className={styles.loadingDescription}>
-            Scanning transmission frequencies...
-          </p>
+        <div className={styles.transmissionsList}>
+          {Array.from({ length: 6 }, (_, i) => (
+            <TransmissionSkeleton key={i} />
+          ))}
         </div>
       </div>
     );
@@ -54,6 +55,13 @@ export default function TransmissionListClient({
         {transmissions.map((transmission) => (
           <TransmissionBox key={transmission.id} transmission={transmission} />
         ))}
+        {loadingMore && (
+          <>
+            {Array.from({ length: 3 }, (_, i) => (
+              <TransmissionSkeleton key={`skeleton-${i}`} />
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
