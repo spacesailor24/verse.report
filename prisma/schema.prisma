@@ -64,8 +64,6 @@ model Category {
   slug        String       @unique // URL-friendly version (e.g., "ships", "patches")
   type        CategoryType
   description String?      @db.Text
-  // TODO: Should remove this from the DB and handle via CSS variables
-  color       String?
 
   // Display order for UI
   sortOrder Int @default(0)
@@ -108,7 +106,6 @@ model Tag {
   name        String  @unique // Display name (e.g., "Ironclad", "3.24")
   slug        String  @unique // URL-friendly version (e.g., "ironclad", "3-24")
   description String? @db.Text
-  color       String? // Hex color for UI (e.g., "#ff5500")
 
   // Category relationship
   categoryId String

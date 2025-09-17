@@ -77,7 +77,7 @@ export default async function TransmissionList({
       id: tagRelation.tag.id,
       name: tagRelation.tag.name,
       slug: tagRelation.tag.slug,
-      color: tagRelation.tag.category.color,
+      categorySlug: tagRelation.tag.category.slug,
     })),
   }));
 

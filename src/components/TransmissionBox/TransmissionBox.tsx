@@ -17,7 +17,7 @@ export interface Transmission {
     id: string;
     name: string;
     slug: string;
-    color: string | null;
+    categorySlug: string;
   }>;
 }
 
@@ -26,15 +26,27 @@ interface TransmissionBoxProps {
 }
 
 const typeColors = {
-  OFFICIAL: '#60a5fa',
-  LEAK: 'var(--accent-warning)',
-  PREDICTION: '#a78bfa',
+  OFFICIAL: 'var(--transmission-official)',
+  LEAK: 'var(--transmission-leak)',
+  PREDICTION: 'var(--transmission-prediction)',
 };
 
 const typeDotColors = {
-  OFFICIAL: '#60a5fa',
-  LEAK: 'var(--accent-warning)',
-  PREDICTION: '#a78bfa',
+  OFFICIAL: 'var(--transmission-official)',
+  LEAK: 'var(--transmission-leak)',
+  PREDICTION: 'var(--transmission-prediction)',
+};
+
+const getCategoryColor = (categorySlug: string) => {
+  const colorMap = {
+    'ships': 'var(--category-ship)',
+    'patches': 'var(--category-patch)',
+    'creatures': 'var(--category-creature)',
+    'locations': 'var(--category-location)',
+    'events': 'var(--category-event)',
+    'features': 'var(--category-feature)',
+  };
+  return colorMap[categorySlug as keyof typeof colorMap] || '#888888';
 };
 
 export default function TransmissionBox({ transmission }: TransmissionBoxProps) {
@@ -84,7 +96,7 @@ export default function TransmissionBox({ transmission }: TransmissionBoxProps) 
                 <span
                   key={tag.id}
                   className={styles.tag}
-                  style={{ color: tag.color || '#888888' }}
+                  style={{ color: getCategoryColor(tag.categorySlug) }}
                 >
                   {tag.name}
                 </span>

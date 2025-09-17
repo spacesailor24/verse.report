@@ -27,7 +27,11 @@ export async function GET(request: NextRequest) {
         include: {
           transmissionTags: {
             include: {
-              tag: true,
+              tag: {
+                include: {
+                  category: true,
+                },
+              },
             },
           },
         },
@@ -46,7 +50,11 @@ export async function GET(request: NextRequest) {
         include: {
           transmissionTags: {
             include: {
-              tag: true,
+              tag: {
+                include: {
+                  category: true,
+                },
+              },
             },
           },
         },
@@ -71,7 +79,7 @@ export async function GET(request: NextRequest) {
         id: tagRelation.tag.id,
         name: tagRelation.tag.name,
         slug: tagRelation.tag.slug,
-        color: tagRelation.tag.color,
+        categorySlug: tagRelation.tag.category.slug,
       })),
     }));
 

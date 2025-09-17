@@ -33,7 +33,6 @@ interface Category {
   slug: string;
   type: string;
   description: string | null;
-  color: string | null;
   sortOrder: number;
   createdAt: Date;
   updatedAt: Date;
@@ -44,6 +43,18 @@ interface Category {
 interface SidebarClientProps {
   initialCategories: Category[];
 }
+
+const getCategoryColor = (categorySlug: string) => {
+  const colorMap = {
+    'ships': 'var(--category-ship)',
+    'patches': 'var(--category-patch)',
+    'creatures': 'var(--category-creature)',
+    'locations': 'var(--category-location)',
+    'events': 'var(--category-event)',
+    'features': 'var(--category-feature)',
+  };
+  return colorMap[categorySlug as keyof typeof colorMap] || undefined;
+};
 
 export default function SidebarClient({
   initialCategories,
@@ -215,8 +226,8 @@ export default function SidebarClient({
                   }`}
                   style={{
                     color:
-                      hasAnyActiveChildren(category) && category.color
-                        ? category.color
+                      hasAnyActiveChildren(category)
+                        ? getCategoryColor(category.slug)
                         : undefined,
                   }}
                 >

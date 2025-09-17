@@ -7,6 +7,19 @@
   --accent-warning: #ffd700;
   --transmission-bg: rgba(255, 255, 255, 0.02);
   --transmission-border: rgba(255, 255, 255, 0.1);
+
+  /* Category Colors */
+  --category-ship: #00D4FF;
+  --category-patch: #FF3366;
+  --category-creature: #66FF33;
+  --category-location: #9966FF;
+  --category-event: #FFD700;
+  --category-feature: #00FFAA;
+
+  /* Transmission Type Colors */
+  --transmission-official: #60a5fa;
+  --transmission-leak: var(--accent-warning);
+  --transmission-prediction: #a78bfa;
 }
 
 @theme inline {
