@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
+import { useFilters } from "@/contexts/FilterContext";
 
 interface ShipFamily {
   id: string;
@@ -60,10 +61,10 @@ export default function SidebarClient({
   initialCategories,
 }: SidebarClientProps) {
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
+  const { selectedFilters, toggleFilter } = useFilters();
   const [categories, setCategories] = useState<Category[]>(
     initialCategories.map((category) => ({ ...category, expanded: false }))
   );
-  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
 
   const toggleCategoryExpansion = (categoryId: string) => {
     setCategories((prev) =>
@@ -76,80 +77,71 @@ export default function SidebarClient({
   };
 
   const toggleCategory = (categoryId: string) => {
-    setActiveFilters((prev) => {
-      const newFilters = new Set(prev);
-      const category = categories.find((c) => c.id === categoryId);
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return;
 
-      if (!category) return newFilters;
+    const isCurrentlyActive = selectedFilters.has(`category-${categoryId}`);
 
-      const isCurrentlyActive = newFilters.has(`category-${categoryId}`);
-
-      if (isCurrentlyActive) {
-        // Deselect category and all its tags
-        newFilters.delete(`category-${categoryId}`);
-        category.tags.forEach((tag) => {
-          newFilters.delete(`tag-${tag.id}`);
-        });
-      } else {
-        // Select category and all its tags
-        newFilters.add(`category-${categoryId}`);
-        category.tags.forEach((tag) => {
-          newFilters.add(`tag-${tag.id}`);
-        });
-      }
-
-      return newFilters;
-    });
+    if (isCurrentlyActive) {
+      // Deselect category and all its tags
+      toggleFilter(`category-${categoryId}`);
+      category.tags.forEach((tag) => {
+        if (selectedFilters.has(`tag-${tag.id}`)) {
+          toggleFilter(`tag-${tag.id}`);
+        }
+      });
+    } else {
+      // Select category and all its tags
+      toggleFilter(`category-${categoryId}`);
+      category.tags.forEach((tag) => {
+        if (!selectedFilters.has(`tag-${tag.id}`)) {
+          toggleFilter(`tag-${tag.id}`);
+        }
+      });
+    }
   };
 
-  const toggleTag = (tagId: string, categoryId: string) => {
-    setActiveFilters((prev) => {
-      const newFilters = new Set(prev);
-      const category = categories.find((c) => c.id === categoryId);
+  const handleToggleTag = (tagId: string, categoryId: string) => {
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return;
 
-      if (!category) return newFilters;
+    // Toggle the tag
+    toggleFilter(`tag-${tagId}`);
 
-      // Toggle the tag
-      if (newFilters.has(`tag-${tagId}`)) {
-        newFilters.delete(`tag-${tagId}`);
-      } else {
-        newFilters.add(`tag-${tagId}`);
-      }
+    // Get the updated state by checking what would be the result
+    const wouldBeActive = !selectedFilters.has(`tag-${tagId}`);
 
-      // Check if all tags in this category are now selected
-      const allTagsSelected = category.tags.every((tag) =>
-        newFilters.has(`tag-${tag.id}`)
-      );
+    // Check if all tags in this category would be selected
+    const allTagsWouldBeSelected = category.tags.every((tag) =>
+      tag.id === tagId ? wouldBeActive : selectedFilters.has(`tag-${tag.id}`)
+    );
 
-      // Check if no tags in this category are selected
-      const noTagsSelected = category.tags.every(
-        (tag) => !newFilters.has(`tag-${tag.id}`)
-      );
+    // Check if no tags in this category would be selected
+    const noTagsWouldBeSelected = category.tags.every(
+      (tag) => tag.id === tagId ? !wouldBeActive : !selectedFilters.has(`tag-${tag.id}`)
+    );
 
-      // Auto-select/deselect parent category based on children
-      if (allTagsSelected) {
-        newFilters.add(`category-${categoryId}`);
-      } else if (noTagsSelected) {
-        newFilters.delete(`category-${categoryId}`);
-      } else {
-        // Partial selection - remove category selection but keep individual tags
-        newFilters.delete(`category-${categoryId}`);
-      }
-
-      return newFilters;
-    });
+    // Auto-select/deselect parent category based on children
+    if (allTagsWouldBeSelected && !selectedFilters.has(`category-${categoryId}`)) {
+      toggleFilter(`category-${categoryId}`);
+    } else if (noTagsWouldBeSelected && selectedFilters.has(`category-${categoryId}`)) {
+      toggleFilter(`category-${categoryId}`);
+    } else if (!noTagsWouldBeSelected && !allTagsWouldBeSelected && selectedFilters.has(`category-${categoryId}`)) {
+      // Partial selection - remove category selection but keep individual tags
+      toggleFilter(`category-${categoryId}`);
+    }
   };
 
   const getActiveCount = () => {
-    return Array.from(activeFilters).filter(filter => filter.startsWith('tag-')).length;
+    return Array.from(selectedFilters).filter(filter => filter.startsWith('tag-')).length;
   };
 
   const isCategoryActive = (categoryId: string) => {
-    return activeFilters.has(`category-${categoryId}`);
+    return selectedFilters.has(`category-${categoryId}`);
   };
 
   const isTagActive = (tagId: string) => {
-    return activeFilters.has(`tag-${tagId}`);
+    return selectedFilters.has(`tag-${tagId}`);
   };
 
   const getActiveTags = (category: Category) => {
@@ -247,7 +239,7 @@ export default function SidebarClient({
                 {category.tags.map((tag, index) => (
                   <button
                     key={tag.id}
-                    onClick={() => toggleTag(tag.id, category.id)}
+                    onClick={() => handleToggleTag(tag.id, category.id)}
                     className={styles.tagButton}
                   >
                     <span className={styles.tagConnector}>

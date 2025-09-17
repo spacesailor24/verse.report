@@ -5,65 +5,54 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const year = searchParams.get('year');
-  const month = searchParams.get('month');
-  const day = searchParams.get('day');
+  const tagIds = searchParams.get('tagIds')?.split(',').filter(Boolean) || [];
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '20');
+  const offset = (page - 1) * limit;
 
   try {
-    let transmissions;
+    let whereClause: any = {
+      publishedAt: {
+        not: null,
+      },
+    };
 
-    if (year && month && day) {
-      // Create date range for the selected day
-      const startDate = new Date(parseInt(year), parseInt(month), parseInt(day));
-      const endDate = new Date(parseInt(year), parseInt(month), parseInt(day) + 1);
-
-      transmissions = await prisma.transmission.findMany({
-        where: {
-          publishedAt: {
-            gte: startDate,
-            lt: endDate,
+    // Add tag filtering if provided
+    if (tagIds.length > 0) {
+      whereClause.transmissionTags = {
+        some: {
+          tagId: {
+            in: tagIds,
           },
         },
-        include: {
-          transmissionTags: {
-            include: {
-              tag: {
-                include: {
-                  category: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          publishedAt: 'desc',
-        },
-      });
-    } else {
-      // Get most recent 20 transmissions
-      transmissions = await prisma.transmission.findMany({
-        where: {
-          publishedAt: {
-            not: null,
-          },
-        },
-        include: {
-          transmissionTags: {
-            include: {
-              tag: {
-                include: {
-                  category: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: {
-          publishedAt: 'desc',
-        },
-        take: 20,
-      });
+      };
     }
+
+    // Get total count for pagination
+    const totalCount = await prisma.transmission.count({
+      where: whereClause,
+    });
+
+    // Get transmissions
+    const transmissions = await prisma.transmission.findMany({
+      where: whereClause,
+      include: {
+        transmissionTags: {
+          include: {
+            tag: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        publishedAt: 'desc',
+      },
+      skip: offset,
+      take: limit,
+    });
 
     // Transform the data to match our component interface
     const transformedTransmissions = transmissions.map((transmission) => ({
@@ -83,7 +72,17 @@ export async function GET(request: NextRequest) {
       })),
     }));
 
-    return NextResponse.json({ transmissions: transformedTransmissions });
+    return NextResponse.json({
+      transmissions: transformedTransmissions,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (error) {
     console.error('Error fetching transmissions:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

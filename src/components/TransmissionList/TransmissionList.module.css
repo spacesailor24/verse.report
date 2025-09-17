@@ -89,3 +89,185 @@
   line-height: 1.5;
   max-width: 300px;
 }
+
+/* Loading state */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  margin: 2rem auto;
+  max-width: 500px;
+  background: var(--bg-surface-faint);
+  border: 1px solid var(--border-primary);
+  clip-path: polygon(
+    0 16px,
+    16px 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    16px 100%,
+    0 calc(100% - 16px)
+  );
+}
+
+.loadingIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--color-nasa);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-nasa);
+  font-family: var(--font-mono), monospace;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.loadingDescription {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-width: 300px;
+}
+
+/* Pagination info header */
+.paginationInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.resultCount {
+  font-size: 0.875rem;
+  color: var(--color-nasa);
+  font-family: var(--font-mono), monospace;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.pageInfo {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono), monospace;
+}
+
+/* Pagination controls */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-primary);
+}
+
+.paginationButton {
+  background: var(--bg-surface-subtle);
+  border: 1px solid var(--border-primary);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% 100%,
+    8px 100%,
+    0 calc(100% - 8px)
+  );
+}
+
+.paginationButton:hover:not(.disabled) {
+  background: var(--nasa-subtle);
+  border-color: var(--color-nasa);
+  color: var(--color-nasa);
+}
+
+.paginationButton.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  color: var(--color-text-subtle);
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageButton {
+  background: transparent;
+  border: 1px solid var(--border-secondary);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageButton:hover {
+  background: var(--bg-surface-subtle);
+  border-color: var(--border-primary);
+  color: var(--color-text-secondary);
+}
+
+.pageButton.active {
+  background: var(--color-nasa);
+  border-color: var(--color-nasa);
+  color: var(--color-black);
+}
+
+.ellipsis {
+  color: var(--color-text-subtle);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  padding: 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .pagination {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .pageNumbers {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .paginationInfo {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
