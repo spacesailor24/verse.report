@@ -137,6 +137,11 @@ export default function TimelineClient({
   const handleDayChange = (day: number) => {
     setSelectedDay(day);
     onDayChange?.(day);
+
+    // Also trigger transmission refresh via global handler
+    if ((window as any).handleTimelineChange) {
+      (window as any).handleTimelineChange(selectedYear, selectedMonth, day);
+    }
   };
 
 

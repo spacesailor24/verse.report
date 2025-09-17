@@ -329,6 +329,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-right: 1rem;
+  position: relative;
+  z-index: 1100;
 }
 
 @media (max-width: 1279px) {
@@ -338,8 +340,9 @@
 }
 
 .hamburgerButton:hover {
-  background: rgba(255, 85, 0, 0.1);
-  border-color: rgba(255, 85, 0, 0.3);
+  background: rgba(255, 85, 0, 0.15);
+  border-color: var(--color-nasa);
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
 }
 
 .hamburgerLine {

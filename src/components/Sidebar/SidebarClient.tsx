@@ -161,6 +161,14 @@ export default function SidebarClient({
 
       <aside className={`${styles.sidebar} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
         <div className={styles.header}>
+          {/* Mobile close button - positioned like the hamburger menu */}
+          <button
+            className={`${styles.mobileCloseButton} ${isMobileMenuOpen ? styles.mobileCloseButtonVisible : ''}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <span className={styles.closeIcon}>×</span>
+          </button>
           <div className={styles.headerContent}>
             <span className={styles.headerPrompt}>&gt;</span>
             <span className={styles.systemName}>VERSE.REPORT</span>
