@@ -7,20 +7,71 @@ interface TimelineClientProps {
   onYearChange?: (year: number) => void;
   onMonthChange?: (month: number) => void;
   onDayChange?: (day: number) => void;
+  availableYears: number[];
+  dateAvailability: Record<number, Record<number, Set<number>>>;
 }
 
 export default function TimelineClient({
   onYearChange,
   onMonthChange,
   onDayChange,
+  availableYears,
+  dateAvailability,
 }: TimelineClientProps) {
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedMonth, setSelectedMonth] = useState(0); // January
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  // Find the closest available date to today
+  const getClosestAvailableDate = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentDay = today.getDate();
+
+    // Check if today has transmissions
+    if (dateAvailability[currentYear]?.[currentMonth]?.has(currentDay)) {
+      return { year: currentYear, month: currentMonth, day: currentDay };
+    }
+
+    // Find all available dates and calculate distance from today
+    const allDates: Array<{ year: number; month: number; day: number; distance: number }> = [];
+
+    Object.keys(dateAvailability).forEach(yearStr => {
+      const year = parseInt(yearStr);
+      Object.keys(dateAvailability[year]).forEach(monthStr => {
+        const month = parseInt(monthStr);
+        dateAvailability[year][month].forEach(day => {
+          const date = new Date(year, month, day);
+          const distance = Math.abs(date.getTime() - today.getTime());
+          allDates.push({ year, month, day, distance });
+        });
+      });
+    });
+
+    // Sort by distance and return closest
+    allDates.sort((a, b) => a.distance - b.distance);
+
+    if (allDates.length > 0) {
+      return allDates[0];
+    }
+
+    // Fallback to first available date
+    const firstYear = availableYears[0];
+    if (firstYear && dateAvailability[firstYear]) {
+      for (let month = 0; month < 12; month++) {
+        if (dateAvailability[firstYear][month] && dateAvailability[firstYear][month].size > 0) {
+          const firstDay = Math.min(...Array.from(dateAvailability[firstYear][month]));
+          return { year: firstYear, month, day: firstDay };
+        }
+      }
+    }
+
+    return { year: availableYears[0] || new Date().getFullYear(), month: 0, day: null };
+  };
+
+  const closestDate = getClosestAvailableDate();
+  const [selectedYear, setSelectedYear] = useState(closestDate.year);
+  const [selectedMonth, setSelectedMonth] = useState(closestDate.month);
+  const [selectedDay, setSelectedDay] = useState(closestDate.day);
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const years = [2023, 2024, 2025];
   const months = [
     "JANUARY",
     "FEBRUARY",
@@ -38,8 +89,22 @@ export default function TimelineClient({
 
   const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
+  const getFirstAvailableMonth = (year: number) => {
+    const yearData = dateAvailability[year];
+    if (!yearData) return 0;
+
+    for (let month = 0; month < 12; month++) {
+      if (yearData[month] && yearData[month].size > 0) {
+        return month;
+      }
+    }
+    return 0;
+  };
+
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
+    setSelectedMonth(getFirstAvailableMonth(year));
+    setSelectedDay(null);
     setIsYearDropdownOpen(false);
     onYearChange?.(year);
   };
@@ -89,7 +154,7 @@ export default function TimelineClient({
             </button>
             {isYearDropdownOpen && (
               <div className={styles.yearDropdownMenu}>
-                {years.map((year) => (
+                {availableYears.map((year) => (
                   <button
                     key={year}
                     className={`${styles.yearDropdownItem} ${
@@ -104,17 +169,24 @@ export default function TimelineClient({
             )}
           </div>
           <div className={styles.monthScroller}>
-            {months.map((month, index) => (
-              <button
-                key={month}
-                onClick={() => handleMonthChange(index)}
-                className={`${styles.monthButton} ${
-                  selectedMonth === index ? styles.monthButtonActive : ""
-                }`}
-              >
-                {month}
-              </button>
-            ))}
+            {months.map((month, index) => {
+              const hasTransmissions = dateAvailability[selectedYear]?.[index] &&
+                                     dateAvailability[selectedYear][index].size > 0;
+
+              return (
+                <button
+                  key={month}
+                  onClick={() => hasTransmissions && handleMonthChange(index)}
+                  disabled={!hasTransmissions}
+                  className={`${styles.monthButton} ${
+                    selectedMonth === index ? styles.monthButtonActive : ""
+                  } ${hasTransmissions ? styles.monthButtonHasTransmissions : styles.monthButtonDisabled}`}
+                  title={hasTransmissions ? `${month} - Has transmissions` : `${month} - No transmissions`}
+                >
+                  {month}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -123,18 +195,25 @@ export default function TimelineClient({
           <div className={styles.dayScroller}>
             {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
               const isValidDay = day <= daysInMonth;
+              const hasTransmissions = dateAvailability[selectedYear]?.[selectedMonth]?.has(day) || false;
+              const isClickable = isValidDay && hasTransmissions;
+
               return (
                 <button
                   key={day}
-                  onClick={() => isValidDay && handleDayChange(day)}
-                  disabled={!isValidDay}
+                  onClick={() => isClickable && handleDayChange(day)}
+                  disabled={!isClickable}
                   className={`${styles.dayButton} ${
                     selectedDay === day ? styles.dayButtonActive : ""
-                  } ${!isValidDay ? styles.dayButtonDisabled : ""}`}
+                  } ${!isValidDay ? styles.dayButtonDisabled : ""} ${
+                    hasTransmissions ? styles.dayButtonHasTransmissions : ""
+                  }`}
                   title={
-                    isValidDay
-                      ? `${months[selectedMonth]} ${day}, ${selectedYear}`
-                      : "Invalid date"
+                    isClickable
+                      ? `${months[selectedMonth]} ${day}, ${selectedYear} - Has transmissions`
+                      : !isValidDay
+                      ? "Invalid date"
+                      : "No transmissions available"
                   }
                 >
                   {String(day).padStart(2, "0")}

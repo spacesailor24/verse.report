@@ -165,6 +165,25 @@
   background: var(--color-nasa);
 }
 
+.monthButtonHasTransmissions {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.monthButtonHasTransmissions:hover {
+  color: white;
+}
+
+.monthButtonDisabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.monthButtonDisabled:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+}
+
 /* Day selector row */
 .dayRow {
   background: rgba(0, 0, 0, 0.5);
@@ -240,14 +259,23 @@
 }
 
 .dayButtonDisabled {
-  opacity: 0.2;
   cursor: not-allowed;
-  color: rgba(237, 237, 237, 0.1);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .dayButtonDisabled:hover {
   background: transparent;
-  color: rgba(237, 237, 237, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dayButtonHasTransmissions {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.dayButtonHasTransmissions:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Disabled state for future implementation */
@@ -255,11 +283,11 @@
 .monthButton:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  color: rgba(237, 237, 237, 0.2);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .dayButton:disabled:hover,
 .monthButton:disabled:hover {
   background: transparent;
-  color: rgba(237, 237, 237, 0.2);
+  color: rgba(255, 255, 255, 0.6);
 }
