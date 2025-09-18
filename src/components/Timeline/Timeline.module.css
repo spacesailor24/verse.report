@@ -167,6 +167,7 @@
   color: var(--color-nasa);
   background: var(--nasa-subtle);
   font-weight: bold;
+  box-shadow: inset 0 0 8px var(--nasa-glow);
 }
 
 .monthButtonActive::after {
@@ -259,6 +260,22 @@
 }
 
 .dayButtonActive::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-nasa);
+}
+
+.dayButtonCurrentView {
+  background: var(--nasa-subtle);
+  color: var(--color-nasa);
+  box-shadow: inset 0 0 8px var(--nasa-glow);
+}
+
+.dayButtonCurrentView::after {
   content: "";
   position: absolute;
   bottom: 0;

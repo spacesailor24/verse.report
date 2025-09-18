@@ -271,3 +271,14 @@
     gap: 0.5rem;
   }
 }
+
+/* Date header styling to match filter titles */
+.dateHeader {
+  color: var(--color-nasa);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

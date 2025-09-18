@@ -111,18 +111,18 @@ export default function TransmissionBox({
               {transmission.type}
             </span>
             <span className={styles.separator}>|</span>
-            <span className={styles.fileId}>
-              {generateFileId(transmission.title, transmission.publishedAt)}
-            </span>
-            <span className={styles.separator}>|</span>
             <div className={styles.tags}>
-              {transmission.tags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className={styles.tag}
-                  style={{ color: getCategoryColor(tag.categorySlug) }}
-                >
-                  {tag.name}
+              {transmission.tags.map((tag, index) => (
+                <span key={tag.id}>
+                  <span
+                    className={styles.tag}
+                    style={{ color: getCategoryColor(tag.categorySlug) }}
+                  >
+                    {tag.name}
+                  </span>
+                  {index < transmission.tags.length - 1 && (
+                    <span className={styles.separator}> /</span>
+                  )}
                 </span>
               ))}
             </div>

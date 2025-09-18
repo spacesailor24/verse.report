@@ -20,6 +20,8 @@ export default function TimelineClient({
   dateAvailability,
 }: TimelineClientProps) {
   const { toggleMobileMenu } = useMobileMenu();
+  const [currentViewDate, setCurrentViewDate] = useState<{ year: number; month: number; day: number } | null>(null);
+
   // Find the closest available date to today
   const getClosestAvailableDate = () => {
     const today = new Date();
@@ -71,7 +73,7 @@ export default function TimelineClient({
   const closestDate = getClosestAvailableDate();
   const [selectedYear, setSelectedYear] = useState(closestDate.year);
   const [selectedMonth, setSelectedMonth] = useState(closestDate.month);
-  const [selectedDay, setSelectedDay] = useState(closestDate.day);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null); // Don't select a day by default
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const months = [
@@ -138,11 +140,42 @@ export default function TimelineClient({
     setSelectedDay(day);
     onDayChange?.(day);
 
+    // Scroll to the date in the transmission list
+    if ((window as any).scrollToDate) {
+      (window as any).scrollToDate(selectedYear, selectedMonth, day);
+    }
+
     // Also trigger transmission refresh via global handler
     if ((window as any).handleTimelineChange) {
       (window as any).handleTimelineChange(selectedYear, selectedMonth, day);
     }
   };
+
+  // Add function to handle external highlight updates
+  useEffect(() => {
+    (window as any).updateTimelineHighlight = (year: number, month: number, day: number) => {
+      setCurrentViewDate({ year, month, day });
+      // Clear selected day when scroll updates the view
+      setSelectedDay(null);
+      // Also update the selected date in the timeline if it's different
+      setSelectedYear(currentYear => {
+        if (year !== currentYear) {
+          return year;
+        }
+        return currentYear;
+      });
+      setSelectedMonth(currentMonth => {
+        if (month !== currentMonth) {
+          return month;
+        }
+        return currentMonth;
+      });
+    };
+
+    return () => {
+      delete (window as any).updateTimelineHighlight;
+    };
+  }, []);
 
 
   return (
@@ -216,6 +249,10 @@ export default function TimelineClient({
               const isValidDay = day <= daysInMonth;
               const hasTransmissions = dateAvailability[selectedYear]?.[selectedMonth]?.has(day) || false;
               const isClickable = isValidDay && hasTransmissions;
+              const isCurrentView = currentViewDate?.year === selectedYear &&
+                                  currentViewDate?.month === selectedMonth &&
+                                  currentViewDate?.day === day;
+              const isSelected = selectedDay === day;
 
               return (
                 <button
@@ -223,13 +260,15 @@ export default function TimelineClient({
                   onClick={() => isClickable && handleDayChange(day)}
                   disabled={!isClickable}
                   className={`${styles.dayButton} ${
-                    selectedDay === day ? styles.dayButtonActive : ""
-                  } ${!isValidDay ? styles.dayButtonDisabled : ""} ${
+                    isSelected ? styles.dayButtonActive : ""
+                  } ${isCurrentView ? styles.dayButtonCurrentView : ""} ${
+                    !isValidDay ? styles.dayButtonDisabled : ""
+                  } ${
                     hasTransmissions ? styles.dayButtonHasTransmissions : ""
                   }`}
                   title={
                     isClickable
-                      ? `${months[selectedMonth]} ${day}, ${selectedYear} - Has transmissions`
+                      ? `${months[selectedMonth]} ${day}, ${selectedYear} - Has transmissions${isCurrentView ? ' (Currently viewing)' : ''}`
                       : !isValidDay
                       ? "Invalid date"
                       : "No transmissions available"
