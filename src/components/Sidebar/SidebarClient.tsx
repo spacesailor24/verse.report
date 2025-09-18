@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import styles from "./Sidebar.module.css";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { useFilters } from "@/contexts/FilterContext";
@@ -62,9 +63,11 @@ export default function SidebarClient({
 }: SidebarClientProps) {
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
   const { selectedFilters, toggleFilter } = useFilters();
+  const { data: session, status } = useSession();
   const [categories, setCategories] = useState<Category[]>(
     initialCategories.map((category) => ({ ...category, expanded: false }))
   );
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   const toggleCategoryExpansion = (categoryId: string) => {
     setCategories((prev) =>
@@ -269,6 +272,47 @@ export default function SidebarClient({
             )}
           </div>
         ))}
+      </div>
+
+      {/* Auth Section */}
+      <div className={styles.authSection}>
+        {status === "loading" ? (
+          <div className={styles.authLoading}>
+            <span className={styles.authText}>LOADING...</span>
+          </div>
+        ) : session?.user ? (
+          <div className={styles.authUser}>
+            <div className={styles.userInfo}>
+              <span className={styles.authPrompt}>&gt;</span>
+              <span className={styles.userName}>{session.user.name}</span>
+              {(session.user as any).isEditor && (
+                <span className={styles.editorBadge}>[EDITOR]</span>
+              )}
+            </div>
+            <button
+              onClick={() => signOut()}
+              className={styles.authButton}
+            >
+              <span className={styles.authButtonText}>LOGOUT</span>
+            </button>
+          </div>
+        ) : (
+          <div className={styles.authLogin}>
+            <button
+              onClick={async () => {
+                setIsSigningIn(true);
+                await signIn("discord");
+              }}
+              disabled={isSigningIn}
+              className={styles.authButton}
+            >
+              <span className={styles.authPrompt}>&gt;</span>
+              <span className={styles.authButtonText}>
+                {isSigningIn ? "CONNECTING..." : "LOGIN"}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
     </aside>
     </>

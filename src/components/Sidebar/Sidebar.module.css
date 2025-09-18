@@ -300,3 +300,89 @@
 .mobileCloseButton:hover .closeIcon {
   color: var(--color-orange-bright);
 }
+
+/* Auth Section */
+.authSection {
+  border-top: 1px solid var(--border-primary);
+  padding: 1rem;
+  margin-top: auto;
+}
+
+.authLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authText {
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.authUser {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.authPrompt {
+  color: white;
+  font-size: 0.875rem;
+}
+
+.userName {
+  color: var(--accent-nasa);
+  font-weight: bold;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+.editorBadge {
+  color: var(--color-orange-bright);
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+.authLogin {
+  display: flex;
+  justify-content: center;
+}
+
+.authButton {
+  background: none;
+  border: 1px solid var(--border-secondary);
+  color: var(--color-text-secondary);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.authButton:hover:not(:disabled) {
+  color: var(--accent-nasa);
+}
+
+.authButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.authButtonText {
+  font-weight: bold;
+}
