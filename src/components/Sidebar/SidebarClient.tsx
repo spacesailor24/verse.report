@@ -285,8 +285,14 @@ export default function SidebarClient({
             <div className={styles.userInfo}>
               <span className={styles.authPrompt}>&gt;</span>
               <span className={styles.userName}>{session.user.name}</span>
-              {(session.user as any).isEditor && (
-                <span className={styles.editorBadge}>[EDITOR]</span>
+              {(session.user as any).roles?.length > 0 && (
+                <div className={styles.rolesBadges}>
+                  {(session.user as any).roles.map((role: string) => (
+                    <span key={role} className={styles.roleBadge}>
+                      [{role.toUpperCase()}]
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
             <button

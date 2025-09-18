@@ -13,13 +13,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        isEditor: (user as any).isEditor || false,
-      },
-    }),
+    session: async ({ session, user }) => {
+      // Fetch user roles from database
+      const userWithRoles = await prisma.user.findUnique({
+        where: { id: user.id },
+        include: {
+          userRoles: {
+            include: {
+              role: true,
+            },
+          },
+        },
+      });
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          roles: userWithRoles?.userRoles.map(ur => ur.role.name) || [],
+        },
+      };
+    },
   },
 });

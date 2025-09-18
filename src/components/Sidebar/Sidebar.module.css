@@ -329,6 +329,7 @@
 .userInfo {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
@@ -345,7 +346,13 @@
   letter-spacing: 0.05em;
 }
 
-.editorBadge {
+.rolesBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.roleBadge {
   color: var(--color-orange-bright);
   font-size: 0.75rem;
   font-weight: bold;
@@ -359,7 +366,6 @@
 
 .authButton {
   background: none;
-  border: 1px solid var(--border-secondary);
   color: var(--color-text-secondary);
   padding: 0.5rem 1rem;
   cursor: pointer;

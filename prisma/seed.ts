@@ -3,6 +3,7 @@ import { seedCategories } from './seeds/categories'
 import { seedShipFamilies } from './seeds/shipFamilies'
 import { seedTags } from './seeds/tags'
 import { seedTransmissions } from './seeds/transmissions'
+import { seedRoles } from './seeds/roles'
 
 const prisma = new PrismaClient()
 
@@ -10,6 +11,7 @@ async function main() {
   console.log('🌱 Starting database seed...')
 
   // Seed in order of dependencies
+  await seedRoles() // Seed roles first (no dependencies)
   await seedCategories(prisma)
   await seedShipFamilies(prisma)
   await seedTags(prisma)
