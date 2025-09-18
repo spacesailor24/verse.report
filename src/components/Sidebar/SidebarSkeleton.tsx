@@ -13,55 +13,45 @@ export default function SidebarSkeleton() {
       </div>
 
       <div className={styles.sidebarContent}>
-        {/* Filter header skeleton */}
+        {/* Filter header with actual content */}
         <div className={styles.filterHeader}>
-          <div style={{
-            width: '120px',
-            height: '14px',
-            backgroundColor: 'var(--bg-surface-subtle)',
-            borderRadius: '2px'
-          }}></div>
-          <div style={{
-            width: '20px',
-            height: '14px',
-            backgroundColor: 'var(--bg-surface-subtle)',
-            borderRadius: '2px'
-          }}></div>
+          <span className={styles.filterTitle}>TRANSMISSION_FILTERS</span>
+          <span className={styles.activeCount}>[0]</span>
         </div>
 
-        {/* Category skeletons with fixed dimensions */}
-        {[
-          { categoryWidth: '80px', tagCount: 5, tagWidths: ['60px', '45px', '75px', '50px', '65px'] },
-          { categoryWidth: '90px', tagCount: 4, tagWidths: ['55px', '70px', '40px', '80px'] },
-          { categoryWidth: '70px', tagCount: 6, tagWidths: ['50px', '60px', '45px', '75px', '55px', '65px'] },
-          { categoryWidth: '85px', tagCount: 3, tagWidths: ['70px', '50px', '60px'] },
-          { categoryWidth: '75px', tagCount: 7, tagWidths: ['45px', '65px', '55px', '70px', '50px', '60px', '75px'] },
-          { categoryWidth: '95px', tagCount: 4, tagWidths: ['65px', '50px', '80px', '55px'] }
-        ].map((category, i) => (
-          <div key={i} className={styles.category}>
-            <div className={styles.categoryHeader}>
-              <div style={{
-                width: category.categoryWidth,
-                height: '12px',
-                backgroundColor: 'var(--bg-surface-subtle)',
-                borderRadius: '2px'
-              }}></div>
+        {/* Category skeletons with actual UI elements */}
+        <div className={styles.categoriesContainer}>
+          {[
+            { categoryWidth: '40px' }, // SHIPS
+            { categoryWidth: '60px' }, // PATCHES
+            { categoryWidth: '75px' }, // CREATURES
+            { categoryWidth: '70px' }, // LOCATIONS
+            { categoryWidth: '50px' }, // EVENTS
+            { categoryWidth: '65px' } // FEATURES
+          ].map((category, i) => (
+            <div key={i} className={styles.categoryGroup}>
+              <div className={styles.categoryHeader}>
+                <button className={styles.expandButton}>
+                  <span className={styles.expandIcon}>{">"}</span>
+                </button>
+                <button className={styles.categoryButton}>
+                  <span className={`${styles.categoryCheckbox} ${styles.categoryCheckboxInactive}`}>
+                    [ ]
+                  </span>
+                  <div style={{
+                    width: category.categoryWidth,
+                    height: '11px',
+                    backgroundColor: 'var(--bg-surface-subtle)',
+                    borderRadius: '1px',
+                    display: 'inline-block',
+                    marginLeft: '4px'
+                  }}></div>
+                </button>
+                <span className={styles.tagCount}>[0]</span>
+              </div>
             </div>
-            <div className={styles.categoryContent}>
-              {category.tagWidths.map((width, j) => (
-                <div key={j} className={styles.tag} style={{
-                  backgroundColor: 'var(--bg-surface-subtle)',
-                  border: '1px solid var(--border-secondary)',
-                  color: 'transparent',
-                  minHeight: '20px',
-                  width: width
-                }}>
-                  &nbsp;
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </aside>
   );
