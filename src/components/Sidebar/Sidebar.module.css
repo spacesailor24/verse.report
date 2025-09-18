@@ -32,6 +32,15 @@
   .sidebarMobileOpen {
     width: 50vw;
   }
+
+  .categoriesContainer {
+    opacity: 0;
+    transition: opacity 0.1s ease 0.2s;
+  }
+
+  .sidebarMobileOpen .categoriesContainer {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 700px) {
