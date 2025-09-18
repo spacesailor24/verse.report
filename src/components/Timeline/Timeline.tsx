@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import TimelineClient from "./TimelineClient";
+import TimelineSkeleton from "./TimelineSkeleton";
 
 export default function Timeline() {
   const [availableYears, setAvailableYears] = useState<number[]>([]);
@@ -39,7 +40,7 @@ export default function Timeline() {
   }, []);
 
   if (loading) {
-    return <div style={{ visibility: 'hidden' }}>Loading timeline...</div>;
+    return <TimelineSkeleton />;
   }
 
   return (

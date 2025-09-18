@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import SidebarClient from './SidebarClient';
+import SidebarSkeleton from './SidebarSkeleton';
 
 interface Category {
   id: string;
@@ -43,7 +44,7 @@ export default function Sidebar() {
   }, []);
 
   if (loading) {
-    return <div style={{ visibility: 'hidden' }}>Loading...</div>;
+    return <SidebarSkeleton />;
   }
 
   return <SidebarClient initialCategories={categories} />;
