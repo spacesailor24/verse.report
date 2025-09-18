@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const tagIds = searchParams.get('tagIds')?.split(',').filter(Boolean) || [];
+  const year = searchParams.get('year');
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
   const offset = (page - 1) * limit;
@@ -25,6 +26,19 @@ export async function GET(request: NextRequest) {
             in: tagIds,
           },
         },
+      };
+    }
+
+    // Add year filtering if provided
+    if (year) {
+      const yearInt = parseInt(year);
+      const startOfYear = new Date(yearInt, 0, 1);
+      const endOfYear = new Date(yearInt + 1, 0, 1);
+
+      whereClause.publishedAt = {
+        ...whereClause.publishedAt,
+        gte: startOfYear,
+        lt: endOfYear,
       };
     }
 

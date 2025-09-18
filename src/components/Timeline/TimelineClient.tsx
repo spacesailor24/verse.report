@@ -5,17 +5,11 @@ import styles from "./Timeline.module.css";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 
 interface TimelineClientProps {
-  onYearChange?: (year: number) => void;
-  onMonthChange?: (month: number) => void;
-  onDayChange?: (day: number) => void;
   availableYears: number[];
   dateAvailability: Record<number, Record<number, Set<number>>>;
 }
 
 export default function TimelineClient({
-  onYearChange,
-  onMonthChange,
-  onDayChange,
   availableYears,
   dateAvailability,
 }: TimelineClientProps) {
@@ -110,7 +104,11 @@ export default function TimelineClient({
     setSelectedMonth(getFirstAvailableMonth(year));
     setSelectedDay(null);
     setIsYearDropdownOpen(false);
-    onYearChange?.(year);
+
+    // Notify HomeClient of year change
+    if ((window as any).handleYearChange) {
+      (window as any).handleYearChange(year);
+    }
   };
 
   // Close dropdown when clicking outside
@@ -133,12 +131,10 @@ export default function TimelineClient({
   const handleMonthChange = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
     setSelectedDay(null); // Reset day when month changes
-    onMonthChange?.(monthIndex);
   };
 
   const handleDayChange = (day: number) => {
     setSelectedDay(day);
-    onDayChange?.(day);
 
     // Scroll to the date in the transmission list
     if ((window as any).scrollToDate) {

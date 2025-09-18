@@ -1,6 +1,6 @@
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Timeline from "@/components/Timeline/Timeline";
-import MainContentClient from "./MainContentClient";
+import HomeClient from "./HomeClient";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
 
 export default function HomeWrapper() {
@@ -15,7 +15,7 @@ export default function HomeWrapper() {
         </div>
         <div className="flex-1 flex flex-col min-w-0">
           <Timeline />
-          <MainContentClient />
+          <HomeClient />
         </div>
       </div>
     </MobileMenuProvider>

@@ -75,13 +75,6 @@ export default function TransmissionBox({
     return `${month} ${day}${suffix}`;
   };
 
-  const generateFileId = (title: string, date: string | Date) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    const hash =
-      title.slice(0, 3).toUpperCase() +
-      dateObj.getDate().toString().padStart(2, "0");
-    return `VR-${hash}-${dateObj.getFullYear().toString().slice(-2)}`;
-  };
 
   return (
     <div

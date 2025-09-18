@@ -3,17 +3,7 @@ import TimelineClient from "./TimelineClient";
 
 const prisma = new PrismaClient()
 
-interface TimelineProps {
-  onYearChange?: (year: number) => void;
-  onMonthChange?: (month: number) => void;
-  onDayChange?: (day: number) => void;
-}
-
-export default async function Timeline({
-  onYearChange,
-  onMonthChange,
-  onDayChange,
-}: TimelineProps) {
+export default async function Timeline() {
   // Fetch available dates from database
   const availableDates = await prisma.transmission.findMany({
     select: {
@@ -53,9 +43,6 @@ export default async function Timeline({
 
   return (
     <TimelineClient
-      onYearChange={onYearChange}
-      onMonthChange={onMonthChange}
-      onDayChange={onDayChange}
       availableYears={availableYears}
       dateAvailability={dateAvailability}
     />

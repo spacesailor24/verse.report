@@ -8,10 +8,12 @@ import { Transmission } from "../TransmissionBox/TransmissionBox";
 
 interface TransmissionListProps {
   selectedDate?: { year: number; month: number; day: number };
+  selectedYear?: number;
 }
 
 export default function TransmissionList({
   selectedDate,
+  selectedYear,
 }: TransmissionListProps) {
   const [transmissions, setTransmissions] = useState<Transmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,11 @@ export default function TransmissionList({
         params.append('tagIds', activeTagFilters.join(','));
       }
 
+      // Add year filtering if selected
+      if (selectedYear) {
+        params.append('year', selectedYear.toString());
+      }
+
       const response = await fetch(`/api/transmissions?${params}`);
       if (!response.ok) {
         throw new Error('Failed to fetch transmissions');
@@ -64,6 +71,11 @@ export default function TransmissionList({
     } finally {
       setLoading(false);
       setLoadingMore(false);
+
+      // Trigger scroll detection after data loads
+      if (!append && (window as any).triggerScrollDetection) {
+        (window as any).triggerScrollDetection();
+      }
     }
   };
 
@@ -77,6 +89,14 @@ export default function TransmissionList({
     setTransmissions([]);
     fetchTransmissions(1, false);
   }, [selectedFilters]);
+
+  // Reset and fetch when selected year changes
+  useEffect(() => {
+    console.log('TransmissionList: Year changed', { selectedYear });
+    setCurrentPage(1);
+    setTransmissions([]);
+    fetchTransmissions(1, false);
+  }, [selectedYear]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {

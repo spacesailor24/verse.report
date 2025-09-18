@@ -3,7 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import TransmissionList from "@/components/TransmissionList/TransmissionList";
 
-export default function MainContentClient() {
+interface MainContentClientProps {
+  selectedYear?: number;
+}
+
+export default function MainContentClient({ selectedYear }: MainContentClientProps) {
   const [selectedDate, setSelectedDate] = useState<{ year: number; month: number; day: number } | undefined>(undefined);
   const [currentViewDate, setCurrentViewDate] = useState<{ year: number; month: number; day: number } | null>(null);
   const currentViewDateRef = useRef<{ year: number; month: number; day: number } | null>(null);
@@ -152,6 +156,19 @@ export default function MainContentClient() {
     currentViewDateRef.current = currentViewDate;
   }, [currentViewDate]);
 
+  // Trigger scroll detection when selectedYear changes
+  useEffect(() => {
+    if (selectedYear) {
+      // Wait for new data to load and refs to be registered
+      const timeoutId = setTimeout(() => {
+        console.log('Triggering scroll detection after year change');
+        handleScroll();
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [selectedYear]);
+
   // Make functions available globally
   useEffect(() => {
     console.log('Setting up global functions in MainContentClient');
@@ -178,17 +195,24 @@ export default function MainContentClient() {
         });
       }
     };
+    (window as any).triggerScrollDetection = () => {
+      setTimeout(() => {
+        console.log('Manual scroll detection triggered');
+        handleScroll();
+      }, 100);
+    };
 
     return () => {
       delete (window as any).handleTimelineChange;
       delete (window as any).registerDateRef;
       delete (window as any).scrollToDate;
+      delete (window as any).triggerScrollDetection;
     };
   }, []);
 
   return (
     <main ref={mainRef} className="flex-1 p-4 overflow-y-auto">
-      <TransmissionList selectedDate={selectedDate} />
+      <TransmissionList selectedDate={selectedDate} selectedYear={selectedYear} />
     </main>
   );
 }
