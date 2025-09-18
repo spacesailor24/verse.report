@@ -67,37 +67,50 @@ export default function TransmissionListClient({
     return groups;
   }, {} as Record<string, { year: number; month: number; day: number; transmissions: Transmission[] }>);
 
+  const sortedEntries = Object.entries(groupedByDate).sort(([a], [b]) => {
+    // Sort by date descending (newest first)
+    const [yearA, monthA, dayA] = a.split("-").map(Number);
+    const [yearB, monthB, dayB] = b.split("-").map(Number);
+    const dateA = new Date(yearA, monthA, dayA);
+    const dateB = new Date(yearB, monthB, dayB);
+    return dateB.getTime() - dateA.getTime();
+  });
+
   return (
     <div className={styles.container}>
       <div className={styles.transmissionsList}>
-        {Object.entries(groupedByDate)
-          .sort(([a], [b]) => {
-            // Sort by date descending (newest first)
-            const [yearA, monthA, dayA] = a.split('-').map(Number);
-            const [yearB, monthB, dayB] = b.split('-').map(Number);
-            const dateA = new Date(yearA, monthA, dayA);
-            const dateB = new Date(yearB, monthB, dayB);
-            return dateB.getTime() - dateA.getTime();
-          })
-          .map(([dateKey, group]) => (
+        {sortedEntries.map(([dateKey, group], index) => (
             <div
               key={dateKey}
               ref={(el) => {
                 if ((window as any).registerDateRef) {
                   (window as any).registerDateRef(dateKey, el);
                 }
+                // Store ref for last element to calculate padding
+                if (index === sortedEntries.length - 1) {
+                  (window as any).lastTransmissionGroupRef = el;
+                }
               }}
-              style={{ marginBottom: '2rem' }}
+              style={{
+                marginBottom: "1rem",
+              }}
             >
               <div className={styles.dateHeader}>
-                {new Date(group.year, group.month, group.day).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                }).toUpperCase().replace(/\s/g, '_').replace(/,/g, '')}
+                {new Date(group.year, group.month, group.day)
+                  .toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                  .toUpperCase()
+                  .replace(/\s/g, "_")
+                  .replace(/,/g, "")}
               </div>
               {group.transmissions.map((transmission) => (
-                <TransmissionBox key={transmission.id} transmission={transmission} />
+                <TransmissionBox
+                  key={transmission.id}
+                  transmission={transmission}
+                />
               ))}
             </div>
           ))}
@@ -109,6 +122,28 @@ export default function TransmissionListClient({
           </>
         )}
       </div>
+      {/* Add bottom padding to ensure the last date can scroll to the top */}
+      {sortedEntries.length > 0 && (
+        <div
+          ref={(el) => {
+            if (el) {
+              // Calculate height needed based on viewport and last element height
+              setTimeout(() => {
+                const mainElement = document.querySelector('main');
+                const lastGroupElement = (window as any).lastTransmissionGroupRef;
+
+                if (mainElement && lastGroupElement) {
+                  const mainHeight = mainElement.clientHeight;
+                  const lastGroupHeight = lastGroupElement.offsetHeight;
+                  // Padding should be viewport height minus the last group height
+                  const paddingHeight = Math.max(0, mainHeight - lastGroupHeight - 50); // 50px buffer
+                  el.style.height = `${paddingHeight}px`;
+                }
+              }, 100); // Small delay to ensure elements are rendered
+            }
+          }}
+        ></div>
+      )}
     </div>
   );
 }

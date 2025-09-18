@@ -136,6 +136,9 @@ export default function TimelineClient({
   const handleDayChange = (day: number) => {
     setSelectedDay(day);
 
+    // Immediately update the current view to prevent double highlighting
+    setCurrentViewDate({ year: selectedYear, month: selectedMonth, day });
+
     // Scroll to the date in the transmission list
     if ((window as any).scrollToDate) {
       (window as any).scrollToDate(selectedYear, selectedMonth, day);
@@ -150,6 +153,12 @@ export default function TimelineClient({
   // Add function to handle external highlight updates
   useEffect(() => {
     (window as any).updateTimelineHighlight = (year: number, month: number, day: number) => {
+      // Don't update if we have a manually selected day that's different
+      if (selectedDay !== null && selectedYear === year && selectedMonth === month && selectedDay !== day) {
+        console.log('Ignoring scroll highlight update - manual selection active:', selectedDay);
+        return;
+      }
+
       setCurrentViewDate({ year, month, day });
       // Clear selected day when scroll updates the view
       setSelectedDay(null);

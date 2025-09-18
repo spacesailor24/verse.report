@@ -1,25 +1,50 @@
-import { PrismaClient } from '@/generated/prisma'
-import SidebarClient from './SidebarClient'
+"use client";
 
-const prisma = new PrismaClient()
+import { useState, useEffect } from 'react';
+import SidebarClient from './SidebarClient';
 
-export default async function Sidebar() {
-  const categories = await prisma.category.findMany({
-    where: {
-      tags: {
-        some: {} // Only include categories that have at least one tag
-      }
-    },
-    orderBy: { sortOrder: 'asc' },
-    include: {
-      tags: {
-        orderBy: { sortOrder: 'asc' },
-        include: {
-          shipFamily: true
-        }
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  sortOrder: number;
+  tags: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    sortOrder: number;
+    shipFamily: {
+      id: string;
+      name: string;
+    } | null;
+  }>;
+}
+
+export default function Sidebar() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetch('/api/categories');
+        if (!response.ok) throw new Error('Failed to fetch categories');
+        const data = await response.json();
+        setCategories(data.categories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
       }
     }
-  })
 
-  return <SidebarClient initialCategories={categories} />
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return <div style={{ visibility: 'hidden' }}>Loading...</div>;
+  }
+
+  return <SidebarClient initialCategories={categories} />;
 }

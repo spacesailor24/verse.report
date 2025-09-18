@@ -100,6 +100,7 @@ export default function MainContentClient({ selectedYear }: MainContentClientPro
       `${currentViewDateRef.current.year}-${currentViewDateRef.current.month}-${currentViewDateRef.current.day}` :
       null;
 
+
     if (targetDate && targetDate !== currentDateKey) {
       const [year, month, day] = targetDate.split('-').map(Number);
       const newViewDate = { year, month, day };
@@ -188,10 +189,17 @@ export default function MainContentClient({ selectedYear }: MainContentClientPro
     (window as any).scrollToDate = (year: number, month: number, day: number) => {
       const dateKey = `${year}-${month}-${day}`;
       const dateElement = dateRefsRef.current[dateKey];
-      if (dateElement) {
-        dateElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
+      if (dateElement && mainRef.current) {
+        const mainElement = mainRef.current;
+        const rect = dateElement.getBoundingClientRect();
+        const mainRect = mainElement.getBoundingClientRect();
+
+        // Calculate the scroll position to put this element at the top
+        const targetScrollTop = mainElement.scrollTop + (rect.top - mainRect.top);
+
+        mainElement.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
         });
       }
     };

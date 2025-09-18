@@ -1,3 +1,5 @@
+"use client";
+
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Timeline from "@/components/Timeline/Timeline";
 import HomeClient from "./HomeClient";

@@ -1,45 +1,46 @@
-import { PrismaClient } from '@/generated/prisma'
+"use client";
+
+import { useState, useEffect } from "react";
 import TimelineClient from "./TimelineClient";
 
-const prisma = new PrismaClient()
+export default function Timeline() {
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [dateAvailability, setDateAvailability] = useState<Record<number, Record<number, Set<number>>>>({});
+  const [loading, setLoading] = useState(true);
 
-export default async function Timeline() {
-  // Fetch available dates from database
-  const availableDates = await prisma.transmission.findMany({
-    select: {
-      publishedAt: true,
-    },
-    where: {
-      publishedAt: {
-        not: null
+  useEffect(() => {
+    async function fetchTimelineData() {
+      try {
+        const response = await fetch('/api/timeline');
+        if (!response.ok) throw new Error('Failed to fetch timeline data');
+        const data = await response.json();
+
+        // Convert arrays back to Sets
+        const convertedDateAvailability = Object.entries(data.dateAvailability).reduce((acc, [year, months]) => {
+          acc[parseInt(year)] = Object.entries(months as Record<number, number[]>).reduce((monthAcc, [month, days]) => {
+            monthAcc[parseInt(month)] = new Set(days);
+            return monthAcc;
+          }, {} as Record<number, Set<number>>);
+          return acc;
+        }, {} as Record<number, Record<number, Set<number>>>);
+
+        setAvailableYears(data.availableYears);
+        setDateAvailability(convertedDateAvailability);
+      } catch (error) {
+        console.error('Error fetching timeline data:', error);
+        setAvailableYears([]);
+        setDateAvailability({});
+      } finally {
+        setLoading(false);
       }
-    },
-    distinct: ['publishedAt'],
-    orderBy: {
-      publishedAt: 'desc'
     }
-  })
 
-  // Group dates by year/month/day for efficient lookup
-  const dateAvailability = availableDates.reduce((acc, transmission) => {
-    if (!transmission.publishedAt) return acc
+    fetchTimelineData();
+  }, []);
 
-    const date = new Date(transmission.publishedAt)
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const day = date.getDate()
-
-    if (!acc[year]) acc[year] = {}
-    if (!acc[year][month]) acc[year][month] = new Set()
-    acc[year][month].add(day)
-
-    return acc
-  }, {} as Record<number, Record<number, Set<number>>>)
-
-  // Get available years for the dropdown
-  const availableYears = Object.keys(dateAvailability)
-    .map(Number)
-    .sort((a, b) => b - a) // Newest first
+  if (loading) {
+    return <div style={{ visibility: 'hidden' }}>Loading timeline...</div>;
+  }
 
   return (
     <TimelineClient
