@@ -3,8 +3,34 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const tagIds = searchParams.get('tagIds')?.split(',').filter(Boolean) || [];
-  const year = searchParams.get('year');
+
+  // Decode base64 filter parameter
+  let tagIds: number[] = [];
+  let year: string | null = null;
+
+  const filterParam = searchParams.get('filter');
+  if (filterParam) {
+    try {
+      // Decode URL-safe base64 without padding
+      const base64 = filterParam
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
+        + '='.repeat((4 - filterParam.length % 4) % 4);
+      const filterJson = Buffer.from(base64, 'base64').toString('utf-8');
+      const filters = JSON.parse(filterJson);
+
+      if (filters.tags && Array.isArray(filters.tags)) {
+        tagIds = filters.tags.filter((id: any) => typeof id === 'number' && !isNaN(id));
+      }
+
+      if (filters.year) {
+        year = filters.year.toString();
+      }
+    } catch (error) {
+      console.error('Error parsing filter parameter:', error);
+    }
+  }
+
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '20');
   const offset = (page - 1) * limit;

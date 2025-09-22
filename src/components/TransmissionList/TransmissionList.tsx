@@ -23,7 +23,7 @@ export default function TransmissionList({
   const { getActiveTagFilters, hasActiveFilters, selectedFilters } = useFilters();
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  const fetchTransmissions = async (page: number = 1, append: boolean = false) => {
+  const fetchTransmissions = useCallback(async (page: number = 1, append: boolean = false) => {
     if (!append) {
       setLoading(true);
     } else {
@@ -36,15 +36,27 @@ export default function TransmissionList({
         limit: '20',
       });
 
-      // Add tag filtering if active
+      // Build filter object and encode as base64
+      const filters: any = {};
+
       const activeTagFilters = getActiveTagFilters();
       if (activeTagFilters.length > 0) {
-        params.append('tagIds', activeTagFilters.join(','));
+        filters.tags = activeTagFilters.map(id => parseInt(id));
       }
 
-      // Add year filtering if selected
       if (selectedYear) {
-        params.append('year', selectedYear.toString());
+        filters.year = selectedYear;
+      }
+
+      // Only add filter param if there are actual filters
+      if (Object.keys(filters).length > 0) {
+        const filterJson = JSON.stringify(filters);
+        // Use URL-safe base64 without padding
+        const filterBase64 = btoa(filterJson)
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=/g, '');
+        params.append('filter', filterBase64);
       }
 
       const response = await fetch(`/api/transmissions?${params}`);
@@ -77,7 +89,7 @@ export default function TransmissionList({
         (window as any).triggerScrollDetection();
       }
     }
-  };
+  }, [selectedYear, getActiveTagFilters, hasActiveFilters]);
 
   // Reset and fetch when filters change
   useEffect(() => {
@@ -88,7 +100,7 @@ export default function TransmissionList({
     setCurrentPage(1);
     setTransmissions([]);
     fetchTransmissions(1, false);
-  }, [selectedFilters]);
+  }, [selectedFilters, fetchTransmissions]);
 
   // Reset and fetch when selected year changes
   useEffect(() => {
@@ -96,7 +108,7 @@ export default function TransmissionList({
     setCurrentPage(1);
     setTransmissions([]);
     fetchTransmissions(1, false);
-  }, [selectedYear]);
+  }, [selectedYear, fetchTransmissions]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {

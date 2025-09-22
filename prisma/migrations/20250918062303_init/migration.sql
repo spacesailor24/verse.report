@@ -27,7 +27,7 @@ CREATE TABLE "public"."Transmission" (
 
 -- CreateTable
 CREATE TABLE "public"."Category" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "type" "public"."CategoryType" NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE "public"."Category" (
 
 -- CreateTable
 CREATE TABLE "public"."ShipFamily" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
@@ -53,12 +53,12 @@ CREATE TABLE "public"."ShipFamily" (
 
 -- CreateTable
 CREATE TABLE "public"."Tag" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT,
-    "categoryId" TEXT NOT NULL,
-    "shipFamilyId" TEXT,
+    "categoryId" INTEGER NOT NULL,
+    "shipFamilyId" INTEGER,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE "public"."Tag" (
 -- CreateTable
 CREATE TABLE "public"."TransmissionTag" (
     "transmissionId" TEXT NOT NULL,
-    "tagId" TEXT NOT NULL,
+    "tagId" INTEGER NOT NULL,
     "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "addedBy" TEXT,
     "confidence" INTEGER NOT NULL DEFAULT 100,

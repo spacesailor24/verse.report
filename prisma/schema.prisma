@@ -59,7 +59,7 @@ model Transmission {
 
 // Category model for organizing tags
 model Category {
-  id          String       @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   name        String       @unique // Display name (e.g., "Ships", "Patches")
   slug        String       @unique // URL-friendly version (e.g., "ships", "patches")
   type        CategoryType
@@ -82,7 +82,7 @@ model Category {
 
 // Ship family model for grouping ship variants
 model ShipFamily {
-  id   String @id @default(cuid())
+  id   Int    @id @default(autoincrement())
   name String @unique // Display name (e.g., "Ironclad", "Apollo")
   slug String @unique // URL-friendly version (e.g., "ironclad", "apollo")
 
@@ -102,17 +102,17 @@ model ShipFamily {
 
 // Tag model - flexible categorization system
 model Tag {
-  id          String  @id @default(cuid())
+  id          Int     @id @default(autoincrement())
   name        String  @unique // Display name (e.g., "Ironclad", "3.24")
   slug        String  @unique // URL-friendly version (e.g., "ironclad", "3-24")
   description String? @db.Text
 
   // Category relationship
-  categoryId String
+  categoryId Int
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   // Ship family relationship (optional - only for ship tags)
-  shipFamilyId String?
+  shipFamilyId Int?
   shipFamily   ShipFamily? @relation(fields: [shipFamilyId], references: [id], onDelete: SetNull)
 
   // Display order for UI
@@ -134,7 +134,7 @@ model Tag {
 // PIVOT TABLE - connects transmissions and tags
 model TransmissionTag {
   transmissionId String
-  tagId          String
+  tagId          Int
 
   // Optional metadata about this specific tag assignment
   addedAt    DateTime @default(now())
