@@ -12,7 +12,7 @@ interface FrontMatter {
   sourceUrl: string | null
 }
 
-export async function seedTransmissions(prisma: PrismaClient) {
+export async function seedTransmissions(prisma: PrismaClient, publisherId: string) {
   console.log('📡 Seeding transmissions...')
 
   // Helper function to parse frontmatter from markdown
@@ -133,6 +133,7 @@ export async function seedTransmissions(prisma: PrismaClient) {
           sourceAuthor: frontMatter.sourceAuthor,
           sourceUrl: frontMatter.sourceUrl,
           publishedAt: new Date(frontMatter.publishedAt),
+          publisherId: publisherId, // Assign to the specified user
         }
       })
 

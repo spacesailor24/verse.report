@@ -2,22 +2,21 @@ import { PrismaClient } from '../src/generated/prisma'
 import { seedCategories } from './seeds/categories'
 import { seedShipFamilies } from './seeds/shipFamilies'
 import { seedTags } from './seeds/tags'
-import { seedTransmissions } from './seeds/transmissions'
 import { seedRoles } from './seeds/roles'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Starting database seed...')
+  console.log('🌱 Starting database seed (base data only)...')
 
-  // Seed in order of dependencies
-  await seedRoles() // Seed roles first (no dependencies)
+  // Seed in order of dependencies - NO TRANSMISSIONS
+  await seedRoles(prisma) // Seed roles first (no dependencies)
   await seedCategories(prisma)
   await seedShipFamilies(prisma)
   await seedTags(prisma)
-  await seedTransmissions(prisma)
 
   console.log('✅ Database seeding completed!')
+  console.log('📝 To seed transmissions: First log in to create a user, then run "npm run seed-transmissions"')
 }
 
 main()

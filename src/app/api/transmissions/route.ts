@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   // Decode base64 filter parameter
   let tagIds: number[] = [];
   let year: string | null = null;
+  let publisherId: string | null = null;
 
   const filterParam = searchParams.get('filter');
   if (filterParam) {
@@ -25,6 +26,10 @@ export async function GET(request: NextRequest) {
 
       if (filters.year) {
         year = filters.year.toString();
+      }
+
+      if (filters.publisherId) {
+        publisherId = filters.publisherId;
       }
     } catch (error) {
       console.error('Error parsing filter parameter:', error);
@@ -66,6 +71,11 @@ export async function GET(request: NextRequest) {
       };
     }
 
+    // Add publisher filtering if provided
+    if (publisherId) {
+      whereClause.publisherId = publisherId;
+    }
+
     // Get total count for pagination
     const totalCount = await prisma.transmission.count({
       where: whereClause,
@@ -82,6 +92,13 @@ export async function GET(request: NextRequest) {
                 category: true,
               },
             },
+          },
+        },
+        publisher: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
           },
         },
       },
@@ -102,6 +119,11 @@ export async function GET(request: NextRequest) {
       sourceAuthor: transmission.sourceAuthor,
       sourceUrl: transmission.sourceUrl,
       publishedAt: transmission.publishedAt?.toISOString(),
+      publisher: {
+        id: transmission.publisher.id,
+        name: transmission.publisher.name,
+        email: transmission.publisher.email,
+      },
       tags: transmission.transmissionTags.map((tagRelation) => ({
         id: tagRelation.tag.id,
         name: tagRelation.tag.name,

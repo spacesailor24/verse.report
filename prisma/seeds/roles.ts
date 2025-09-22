@@ -1,8 +1,6 @@
 import { PrismaClient } from '../../src/generated/prisma';
 
-const prisma = new PrismaClient();
-
-export async function seedRoles() {
+export async function seedRoles(prisma: PrismaClient) {
   console.log('Seeding roles...');
 
   const roles = [

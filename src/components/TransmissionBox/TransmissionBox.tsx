@@ -15,6 +15,11 @@ export interface Transmission {
   sourceAuthor: string | null;
   sourceUrl: string | null;
   publishedAt: string | Date;
+  publisher: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
   tags: Array<{
     id: string;
     name: string;

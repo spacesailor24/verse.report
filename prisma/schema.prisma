@@ -43,6 +43,10 @@ model Transmission {
   sourceAuthor String
   publishedAt  DateTime?
 
+  // Publisher (user who created the transmission)
+  publisherId String
+  publisher   User   @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
   // System fields
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -55,6 +59,7 @@ model Transmission {
   @@index([status])
   @@index([sourceAuthor])
   @@index([publishedAt])
+  @@index([publisherId])
 }
 
 // Category model for organizing tags
@@ -194,9 +199,10 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  accounts  Account[]
-  sessions  Session[]
-  userRoles UserRole[]
+  accounts      Account[]
+  sessions      Session[]
+  userRoles     UserRole[]
+  transmissions Transmission[] // Transmissions published by this user
 
   @@map("users")
 }

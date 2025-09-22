@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "assign-admin": "tsx scripts/assign-admin.ts",
-    "list-users": "tsx scripts/list-users.ts"
+    "list-users": "tsx scripts/list-users.ts",
+    "seed-transmissions": "tsx prisma/seed-transmissions.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -16,6 +16,10 @@
   font-family: "Courier New", monospace;
   font-size: 0.875rem;
   transition: transform 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
 @media (max-width: 1279px) {
