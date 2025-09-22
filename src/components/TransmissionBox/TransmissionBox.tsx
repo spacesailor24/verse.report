@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import ReactMarkdown from "react-markdown";
 import styles from "./TransmissionBox.module.css";
 
@@ -60,9 +61,21 @@ export default function TransmissionBox({
   transmission,
 }: TransmissionBoxProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { data: session } = useSession();
 
   const handleClick = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the main click handler
+    // TODO: Implement edit functionality
+    console.log('Edit transmission:', transmission.id);
+  };
+
+  const hasEditPermission = () => {
+    const userRoles = (session?.user as any)?.roles || [];
+    return userRoles.includes('admin') || userRoles.includes('editor');
   };
 
   const formatDate = (date: string | Date) => {
@@ -178,6 +191,12 @@ export default function TransmissionBox({
 
         {/* Actions */}
         <div className={styles.actions}>
+          {hasEditPermission() && (
+            <div className={styles.editButton} onClick={handleEditClick}>
+              <span>EDIT_TRANSMISSION</span>
+              <span>✎</span>
+            </div>
+          )}
           <div className={styles.openAction}>
             <span>
               {isExpanded ? "CLOSE_TRANSMISSION" : "OPEN_TRANSMISSION"}

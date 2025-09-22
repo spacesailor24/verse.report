@@ -332,7 +332,8 @@
 
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .openAction {
@@ -347,6 +348,21 @@
 
 .transmissionBox:hover .openAction {
   color: var(--color-nasa);
+}
+
+.editButton {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-gray-dark);
+  font-size: 0.75rem;
+  font-family: var(--font-mono), monospace;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.transmissionBox:hover .editButton {
+  color: var(--color-orange-bright);
 }
 
 /* Expanded state styles */
