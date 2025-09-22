@@ -289,6 +289,15 @@ export default function SidebarClient({
           </div>
         ) : session?.user ? (
           <div className={styles.authUser}>
+            {hasEditPermission() && (
+              <button
+                onClick={() => router.push('/broadcast')}
+                className={styles.broadcastButton}
+              >
+                <span className={styles.broadcastPrompt}>&gt;</span>
+                <span className={styles.broadcastText}>BROADCAST_TRANSMISSION</span>
+              </button>
+            )}
             <div className={styles.userInfo}>
               <span className={styles.authPrompt}>&gt;</span>
               <span className={styles.userName}>{session.user.name}</span>

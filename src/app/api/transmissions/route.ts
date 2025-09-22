@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
@@ -145,6 +146,123 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching transmissions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has admin or editor role
+    const userWithRoles = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    const hasEditPermission = userWithRoles?.userRoles.some(
+      (ur) => ur.role.name === 'admin' || ur.role.name === 'editor'
+    );
+
+    if (!hasEditPermission) {
+      return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+    }
+
+    const { title, subtitle, content, sourceAuthor, sourceUrl, type } = await request.json();
+
+    // Validate input
+    if (!title || typeof title !== 'string') {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    }
+
+    if (!subtitle || typeof subtitle !== 'string') {
+      return NextResponse.json({ error: 'Subtitle is required' }, { status: 400 });
+    }
+
+    if (!content || typeof content !== 'string') {
+      return NextResponse.json({ error: 'Content is required' }, { status: 400 });
+    }
+
+    if (!sourceAuthor || typeof sourceAuthor !== 'string') {
+      return NextResponse.json({ error: 'Source author is required' }, { status: 400 });
+    }
+
+    if (!type || !['OFFICIAL', 'LEAK', 'PREDICTION'].includes(type)) {
+      return NextResponse.json({ error: 'Valid type is required' }, { status: 400 });
+    }
+
+    // Create the transmission
+    const newTransmission = await prisma.transmission.create({
+      data: {
+        title: title.trim(),
+        subTitle: subtitle.trim(),
+        content: content.trim(),
+        sourceAuthor: sourceAuthor.trim(),
+        sourceUrl: sourceUrl?.trim() || null,
+        type,
+        status: 'PUBLISHED',
+        publishedAt: new Date(),
+        publisherId: session.user.id,
+      },
+      include: {
+        transmissionTags: {
+          include: {
+            tag: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
+        publisher: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    // Transform the data to match our component interface
+    const transformedTransmission = {
+      id: newTransmission.id,
+      title: newTransmission.title,
+      content: newTransmission.content || '',
+      summary: newTransmission.subTitle,
+      type: newTransmission.type,
+      sourceAuthor: newTransmission.sourceAuthor,
+      sourceUrl: newTransmission.sourceUrl,
+      publishedAt: newTransmission.publishedAt?.toISOString(),
+      publisher: {
+        id: newTransmission.publisher.id,
+        name: newTransmission.publisher.name,
+        email: newTransmission.publisher.email,
+      },
+      tags: newTransmission.transmissionTags.map((tagRelation) => ({
+        id: tagRelation.tag.id,
+        name: tagRelation.tag.name,
+        slug: tagRelation.tag.slug,
+        categorySlug: tagRelation.tag.category.slug,
+      })),
+    };
+
+    return NextResponse.json({
+      message: 'Transmission created successfully',
+      transmission: transformedTransmission,
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating transmission:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
