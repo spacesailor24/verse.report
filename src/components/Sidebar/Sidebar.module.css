@@ -308,6 +308,44 @@
   margin-top: auto;
 }
 
+/* Broadcast Button */
+.broadcastButton {
+  background: transparent;
+  border: none;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.broadcastButton:hover {
+  background: transparent;
+}
+
+.broadcastPrompt {
+  color: white;
+  font-family: var(--font-mono);
+  transition: color 0.3s ease;
+}
+
+.broadcastText {
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+}
+
+.broadcastButton:hover .broadcastPrompt,
+.broadcastButton:hover .broadcastText {
+  color: var(--color-orange-bright);
+}
+
 .authLoading {
   display: flex;
   align-items: center;

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { useFilters } from "@/contexts/FilterContext";
@@ -64,10 +65,16 @@ export default function SidebarClient({
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
   const { selectedFilters, toggleFilter } = useFilters();
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>(
     initialCategories.map((category) => ({ ...category, expanded: false }))
   );
   const [isSigningIn, setIsSigningIn] = useState(false);
+
+  const hasEditPermission = () => {
+    const userRoles = (session?.user as any)?.roles || [];
+    return userRoles.includes('admin') || userRoles.includes('editor');
+  };
 
   const toggleCategoryExpansion = (categoryId: string) => {
     setCategories((prev) =>
@@ -282,6 +289,15 @@ export default function SidebarClient({
           </div>
         ) : session?.user ? (
           <div className={styles.authUser}>
+            {hasEditPermission() && (
+              <button
+                onClick={() => router.push('/broadcast')}
+                className={styles.broadcastButton}
+              >
+                <span className={styles.broadcastPrompt}>&gt;</span>
+                <span className={styles.broadcastText}>BROADCAST_TRANSMISSION</span>
+              </button>
+            )}
             <div className={styles.userInfo}>
               <span className={styles.authPrompt}>&gt;</span>
               <span className={styles.userName}>{session.user.name}</span>

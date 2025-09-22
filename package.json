@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "assign-admin": "tsx scripts/assign-admin.ts",
+    "list-users": "tsx scripts/list-users.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

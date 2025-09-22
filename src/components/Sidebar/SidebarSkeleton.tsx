@@ -52,16 +52,6 @@ export default function SidebarSkeleton() {
             </div>
           ))}
         </div>
-
-        {/* Auth Section Skeleton */}
-        <div className={styles.authSection}>
-          <div className={styles.authLogin}>
-            <button className={styles.authButton} disabled>
-              <span className={styles.authPrompt}>{">"}</span>
-              <span className={styles.authButtonText}>LOGIN</span>
-            </button>
-          </div>
-        </div>
       </div>
     </aside>
   );
