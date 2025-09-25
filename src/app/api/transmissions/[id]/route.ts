@@ -191,3 +191,71 @@ export async function PUT(
     }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if user has admin or editor role
+    const userWithRoles = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    const hasEditPermission = userWithRoles?.userRoles.some(
+      (ur) => ur.role.name === 'admin' || ur.role.name === 'editor'
+    );
+
+    if (!hasEditPermission) {
+      return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+    }
+
+    const transmissionId = params.id;
+
+    // Verify the transmission exists
+    const existingTransmission = await prisma.transmission.findUnique({
+      where: { id: transmissionId },
+    });
+
+    if (!existingTransmission) {
+      return NextResponse.json({ error: 'Transmission not found' }, { status: 404 });
+    }
+
+    console.log('Deleting transmission:', { transmissionId });
+
+    // Delete the transmission (this will cascade delete related records)
+    await prisma.transmission.delete({
+      where: { id: transmissionId },
+    });
+
+    return NextResponse.json({
+      message: 'Transmission deleted successfully',
+    }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting transmission:', error);
+
+    // More specific error handling
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}

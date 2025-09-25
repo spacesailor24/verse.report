@@ -241,6 +241,7 @@ function BroadcastForm() {
   });
   const [localSelectedTags, setLocalSelectedTags] = useState<Set<string>>(new Set());
   const [editTransmissionId, setEditTransmissionId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -446,6 +447,40 @@ function BroadcastForm() {
       alert("Failed to create transmission. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editTransmissionId) return;
+
+    // Confirmation dialog
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this transmission? This action cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/transmissions/${editTransmissionId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete transmission");
+      }
+
+      // Redirect to home after successful deletion
+      router.push("/");
+    } catch (error) {
+      console.error("Error deleting transmission:", error);
+      alert("Failed to delete transmission. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -723,24 +758,36 @@ function BroadcastForm() {
               </div>
 
               <div className={styles.actions}>
+                <div className={styles.leftActionButtons}>
                   <button
                     type="button"
                     onClick={() => router.push("/")}
                     className={styles.cancelButton}
-                    disabled={isLoading}
+                    disabled={isLoading || isDeleting}
                   >
                     CANCEL
                   </button>
-                  <button
-                    type="submit"
-                    className={styles.submitButton}
-                    disabled={isLoading || !isFormValid}
-                  >
-                    {isLoading
-                      ? (editTransmissionId ? "UPDATING..." : "BROADCASTING...")
-                      : (editTransmissionId ? "UPDATE_TRANSMISSION" : "BROADCAST_TRANSMISSION")}
-                  </button>
+                  {editTransmissionId && (
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      className={styles.deleteButton}
+                      disabled={isLoading || isDeleting}
+                    >
+                      {isDeleting ? "DELETING..." : "DELETE_TRANSMISSION"}
+                    </button>
+                  )}
                 </div>
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={isLoading || !isFormValid || isDeleting}
+                >
+                  {isLoading
+                    ? (editTransmissionId ? "UPDATING..." : "BROADCASTING...")
+                    : (editTransmissionId ? "UPDATE_TRANSMISSION" : "BROADCAST_TRANSMISSION")}
+                </button>
+              </div>
               </form>
             </div>
 
