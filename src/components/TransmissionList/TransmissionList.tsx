@@ -44,9 +44,8 @@ export default function TransmissionList({
         filters.tags = activeTagFilters.map(id => parseInt(id));
       }
 
-      if (selectedYear) {
-        filters.year = selectedYear;
-      }
+      // Note: selectedYear is used for timeline navigation only, not for filtering transmissions
+      // This allows infinite scroll to work across all years
 
       // Only add filter param if there are actual filters
       if (Object.keys(filters).length > 0) {
@@ -89,7 +88,7 @@ export default function TransmissionList({
         (window as any).triggerScrollDetection();
       }
     }
-  }, [selectedYear, getActiveTagFilters, hasActiveFilters]);
+  }, [getActiveTagFilters, hasActiveFilters]);
 
   // Reset and fetch when filters change
   useEffect(() => {
@@ -102,13 +101,7 @@ export default function TransmissionList({
     fetchTransmissions(1, false);
   }, [selectedFilters, fetchTransmissions]);
 
-  // Reset and fetch when selected year changes
-  useEffect(() => {
-    console.log('TransmissionList: Year changed', { selectedYear });
-    setCurrentPage(1);
-    setTransmissions([]);
-    fetchTransmissions(1, false);
-  }, [selectedYear, fetchTransmissions]);
+  // Note: selectedYear no longer triggers refetch to allow cross-year infinite scroll
 
   // Intersection Observer for infinite scroll
   useEffect(() => {

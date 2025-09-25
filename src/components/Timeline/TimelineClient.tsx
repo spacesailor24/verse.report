@@ -101,9 +101,50 @@ export default function TimelineClient({
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    setSelectedMonth(getFirstAvailableMonth(year));
-    setSelectedDay(null);
     setIsYearDropdownOpen(false);
+
+    // Find the last available date in the selected year
+    const yearData = dateAvailability[year];
+    if (yearData) {
+      let lastMonth = -1;
+      let lastDay = -1;
+
+      // Find the last month with transmissions (iterate backwards)
+      for (let month = 11; month >= 0; month--) {
+        if (yearData[month] && yearData[month].size > 0) {
+          lastMonth = month;
+          // Find the last day in this month
+          const availableDays = Array.from(yearData[month]).sort((a, b) => b - a);
+          lastDay = availableDays[0]; // Highest day number
+          break;
+        }
+      }
+
+      if (lastMonth !== -1 && lastDay !== -1) {
+        // Set the timeline to the last available date
+        setSelectedMonth(lastMonth);
+        setSelectedDay(lastDay);
+        setCurrentViewDate({ year, month: lastMonth, day: lastDay });
+
+        // Scroll to the date in the transmission list
+        if ((window as any).scrollToDate) {
+          (window as any).scrollToDate(year, lastMonth, lastDay);
+        }
+
+        // Also trigger transmission refresh via global handler
+        if ((window as any).handleTimelineChange) {
+          (window as any).handleTimelineChange(year, lastMonth, lastDay);
+        }
+      } else {
+        // Fallback: set to first available month but no day selected
+        setSelectedMonth(getFirstAvailableMonth(year));
+        setSelectedDay(null);
+      }
+    } else {
+      // Year has no data, fallback
+      setSelectedMonth(getFirstAvailableMonth(year));
+      setSelectedDay(null);
+    }
 
     // Notify HomeClient of year change
     if ((window as any).handleYearChange) {
@@ -130,7 +171,30 @@ export default function TimelineClient({
 
   const handleMonthChange = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
-    setSelectedDay(null); // Reset day when month changes
+
+    // Find the last available day with transmissions in this month
+    const monthData = dateAvailability[selectedYear]?.[monthIndex];
+    if (monthData && monthData.size > 0) {
+      const availableDays = Array.from(monthData).sort((a, b) => b - a); // Sort descending
+      const lastDay = availableDays[0]; // Get the highest (last) day
+
+      setSelectedDay(lastDay);
+
+      // Immediately update the current view
+      setCurrentViewDate({ year: selectedYear, month: monthIndex, day: lastDay });
+
+      // Scroll to the date in the transmission list
+      if ((window as any).scrollToDate) {
+        (window as any).scrollToDate(selectedYear, monthIndex, lastDay);
+      }
+
+      // Also trigger transmission refresh via global handler
+      if ((window as any).handleTimelineChange) {
+        (window as any).handleTimelineChange(selectedYear, monthIndex, lastDay);
+      }
+    } else {
+      setSelectedDay(null); // Reset day when month has no transmissions
+    }
   };
 
   const handleDayChange = (day: number) => {
