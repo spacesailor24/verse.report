@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
@@ -71,6 +71,18 @@ export default function SidebarClient({
   const [categories, setCategories] = useState<Category[]>(
     initialCategories.map((category) => ({ ...category, expanded: false }))
   );
+
+  // Update categories when initialCategories change (e.g., after new tag creation)
+  useEffect(() => {
+    setCategories(prevCategories => {
+      // Preserve the expanded state when updating categories
+      const expandedState = new Map(prevCategories.map(cat => [cat.id, cat.expanded]));
+      return initialCategories.map(category => ({
+        ...category,
+        expanded: expandedState.get(category.id) ?? false
+      }));
+    });
+  }, [initialCategories]);
   const [isSigningIn, setIsSigningIn] = useState(false);
 
   const hasEditPermission = () => {
@@ -251,7 +263,7 @@ export default function SidebarClient({
 
                 <button
                   onClick={() => toggleCategory(category.id)}
-                  className={styles.categoryButton}
+                  className={styles.categoryCheckboxButton}
                 >
                   <span
                     className={`${styles.categoryCheckbox} ${
@@ -262,6 +274,12 @@ export default function SidebarClient({
                   >
                     [{isCategoryActive(category.id) ? "X" : " "}]
                   </span>
+                </button>
+
+                <button
+                  onClick={() => toggleCategoryExpansion(category.id)}
+                  className={styles.categoryNameButton}
+                >
                   <span
                     className={`${styles.categoryName} ${
                       hasAnyActiveChildren(category)

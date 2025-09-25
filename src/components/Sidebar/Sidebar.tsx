@@ -25,6 +25,7 @@ export default function Sidebar() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -46,6 +47,18 @@ export default function Sidebar() {
     }
 
     fetchCategories();
+  }, [refreshKey]);
+
+  // Listen for custom event to refetch categories
+  useEffect(() => {
+    const handleRefetchCategories = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+
+    window.addEventListener('refetch-categories', handleRefetchCategories);
+    return () => {
+      window.removeEventListener('refetch-categories', handleRefetchCategories);
+    };
   }, []);
 
   if (loading || isFirstLoad) {

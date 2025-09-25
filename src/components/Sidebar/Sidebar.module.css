@@ -128,12 +128,24 @@
   margin-left: 4px;
 }
 
-.skeletonCategory1 { width: 40px; }
-.skeletonCategory2 { width: 60px; }
-.skeletonCategory3 { width: 75px; }
-.skeletonCategory4 { width: 70px; }
-.skeletonCategory5 { width: 50px; }
-.skeletonCategory6 { width: 65px; }
+.skeletonCategory1 {
+  width: 40px;
+}
+.skeletonCategory2 {
+  width: 60px;
+}
+.skeletonCategory3 {
+  width: 75px;
+}
+.skeletonCategory4 {
+  width: 70px;
+}
+.skeletonCategory5 {
+  width: 50px;
+}
+.skeletonCategory6 {
+  width: 65px;
+}
 
 .categoriesContainer {
   flex: 1;
@@ -184,6 +196,36 @@
 }
 
 .categoryButton:hover {
+  color: var(--accent-nasa);
+}
+
+.categoryCheckboxButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.categoryCheckboxButton:hover .categoryCheckbox {
+  color: white;
+}
+
+.categoryNameButton {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  text-align: left;
+}
+
+.categoryNameButton:hover {
   color: var(--accent-nasa);
 }
 
@@ -242,6 +284,10 @@
 }
 
 .tagButton:hover {
+  color: white;
+}
+
+.tagButton:hover .tagCheckbox {
   color: white;
 }
 

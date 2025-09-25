@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useFilters } from "@/contexts/FilterContext";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import TransmissionBox from "@/components/TransmissionBox/TransmissionBox";
 import TransmissionSkeleton from "@/components/TransmissionBox/TransmissionSkeleton";
@@ -10,18 +11,18 @@ import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
 import styles from "./broadcast.module.css";
 
 interface Tag {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   sortOrder: number;
   shipFamily: {
-    id: string;
+    id: number;
     name: string;
   } | null;
 }
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   sortOrder: number;
@@ -103,8 +104,8 @@ function CategoryDropdown({
   disabled,
   placeholder
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  value: number | null;
+  onChange: (value: number) => void;
   categories: Category[];
   disabled: boolean;
   placeholder: string;
@@ -113,7 +114,7 @@ function CategoryDropdown({
 
   const selectedCategory = categories.find(cat => cat.id === value);
 
-  const handleSelect = (categoryId: string) => {
+  const handleSelect = (categoryId: number) => {
     onChange(categoryId);
     setIsOpen(false);
   };
@@ -228,7 +229,7 @@ function BroadcastForm() {
   const [sources, setSources] = useState<Source[]>([]);
   const [sourcesLoading, setSourcesLoading] = useState(true);
   const [newTagName, setNewTagName] = useState("");
-  const [newTagCategory, setNewTagCategory] = useState("");
+  const [newTagCategory, setNewTagCategory] = useState<number | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
   const [newSourceName, setNewSourceName] = useState("");
   const [newSourceDescription, setNewSourceDescription] = useState("");
@@ -246,7 +247,13 @@ function BroadcastForm() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Note: Not using global filters anymore to avoid interference with main transmission list
+  const { getActiveTagFilters, selectedFilters, toggleFilter } = useFilters();
+
+  // Sync global filters with local selected tags in broadcast mode
+  useEffect(() => {
+    const activeTagFilters = getActiveTagFilters();
+    setLocalSelectedTags(new Set(activeTagFilters));
+  }, [selectedFilters, getActiveTagFilters]);
 
   // Check if all required fields are filled
   const isFormValid = title.trim() && subtitle.trim() && sourceId !== null;
@@ -291,6 +298,8 @@ function BroadcastForm() {
 
 
   const handleCreateTag = async () => {
+    console.log("Creating tag with:", { name: newTagName, categoryId: newTagCategory });
+
     if (!newTagName.trim() || !newTagCategory) {
       alert("Please enter a tag name and select a category");
       return;
@@ -299,25 +308,33 @@ function BroadcastForm() {
     setIsCreatingTag(true);
 
     try {
+      const payload = {
+        name: newTagName.trim(),
+        categoryId: newTagCategory.toString(), // Convert to string for API
+      };
+      console.log("Sending payload:", payload);
+
       const response = await fetch("/api/tags", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: newTagName.trim(),
-          categoryId: newTagCategory,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create tag");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create tag");
       }
 
       const { tag } = await response.json();
 
       // Add the new tag to local selected tags
-      setLocalSelectedTags(prev => new Set([...prev, tag.id.toString()]));
+      const tagIdString = tag.id.toString();
+      setLocalSelectedTags(prev => new Set([...prev, tagIdString]));
+
+      // Add the new tag to the global filter context so sidebar updates
+      toggleFilter(`tag-${tagIdString}`);
 
       // Add the new tag to the categories list
       setCategories(prevCategories =>
@@ -332,14 +349,17 @@ function BroadcastForm() {
         })
       );
 
+      // Dispatch event to refetch categories in Sidebar
+      window.dispatchEvent(new Event('refetch-categories'));
+
       // Clear the form
       setNewTagName("");
-      setNewTagCategory("");
+      setNewTagCategory(null);
 
       alert(`Tag "${tag.name}" created and selected!`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating tag:", error);
-      alert("Failed to create tag. Please try again.");
+      alert(error.message || "Failed to create tag. Please try again.");
     } finally {
       setIsCreatingTag(false);
     }
@@ -499,7 +519,7 @@ function BroadcastForm() {
         // Convert tag.id to string for comparison since getActiveTagFilters() returns strings
         if (selectedTagIds.includes(String(tag.id))) {
           tagData.push({
-            id: tag.id,
+            id: tag.id.toString(), // Convert to string for TransmissionBox
             name: tag.name,
             slug: tag.slug,
             categorySlug: category.slug,

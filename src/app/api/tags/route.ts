@@ -37,13 +37,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tag name is required' }, { status: 400 });
     }
 
-    if (!categoryId || typeof categoryId !== 'string') {
+    if (!categoryId) {
       return NextResponse.json({ error: 'Category ID is required' }, { status: 400 });
+    }
+
+    // Convert categoryId to number if it's a string
+    const categoryIdNum = typeof categoryId === 'string' ? parseInt(categoryId, 10) : categoryId;
+
+    if (isNaN(categoryIdNum)) {
+      return NextResponse.json({ error: 'Invalid category ID' }, { status: 400 });
     }
 
     // Check if category exists
     const category = await prisma.category.findUnique({
-      where: { id: categoryId },
+      where: { id: categoryIdNum },
     });
 
     if (!category) {
@@ -60,7 +67,7 @@ export async function POST(request: NextRequest) {
     const existingTag = await prisma.tag.findFirst({
       where: {
         slug,
-        categoryId,
+        categoryId: categoryIdNum,
       },
     });
 
@@ -72,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     // Get the highest sortOrder in this category
     const highestSortOrder = await prisma.tag.findFirst({
-      where: { categoryId },
+      where: { categoryId: categoryIdNum },
       orderBy: { sortOrder: 'desc' },
       select: { sortOrder: true },
     });
@@ -82,7 +89,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: name.trim(),
         slug,
-        categoryId,
+        categoryId: categoryIdNum,
         sortOrder: (highestSortOrder?.sortOrder ?? 0) + 1,
       },
       include: {
