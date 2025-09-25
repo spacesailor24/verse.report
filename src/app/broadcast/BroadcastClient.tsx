@@ -462,6 +462,13 @@ function BroadcastForm() {
       setType("OFFICIAL");
       setPublishedAt(new Date().toISOString().slice(0, 16));
 
+      // Clear global filters to prevent them from being applied on homepage
+      Array.from(localSelectedTags).forEach(tagId => {
+        if (selectedFilters.has(`tag-${tagId}`)) {
+          toggleFilter(`tag-${tagId}`);
+        }
+      });
+
       // Clear local selected tags and edit mode
       setLocalSelectedTags(new Set());
       setEditTransmissionId(null);
