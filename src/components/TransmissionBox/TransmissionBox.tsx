@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import styles from "./TransmissionBox.module.css";
 
@@ -13,6 +14,7 @@ export interface Transmission {
   content: string;
   summary: string | null;
   type: TransmissionType;
+  sourceId: number;
   sourceAuthor: string | null;
   sourceUrl: string | null;
   publishedAt: string | Date;
@@ -62,15 +64,41 @@ export default function TransmissionBox({
 }: TransmissionBoxProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { data: session } = useSession();
+  const router = useRouter();
+
+  const hasContent = transmission.content && transmission.content.trim().length > 0;
 
   const handleClick = () => {
-    setIsExpanded(!isExpanded);
+    // Only allow expansion if there's content to show
+    if (hasContent) {
+      setIsExpanded(!isExpanded);
+    }
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the main click handler
-    // TODO: Implement edit functionality
-    console.log('Edit transmission:', transmission.id);
+
+    // Prepare transmission data for the broadcast form
+    const editData = {
+      id: transmission.id,
+      title: transmission.title,
+      subtitle: transmission.summary || '',
+      content: transmission.content,
+      type: transmission.type,
+      sourceId: transmission.sourceId,
+      sourceUrl: transmission.sourceUrl || '',
+      publishedAt: transmission.publishedAt,
+      tagIds: transmission.tags.map(tag => tag.id),
+    };
+
+    // Encode the data as base64 URL parameter
+    const encodedData = btoa(JSON.stringify(editData))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+
+    // Navigate to broadcast form with edit data
+    router.push(`/broadcast?edit=${encodedData}`);
   };
 
   const hasEditPermission = () => {
@@ -98,8 +126,9 @@ export default function TransmissionBox({
     <div
       className={`${styles.transmissionBox} ${
         isExpanded ? styles.expanded : ""
-      }`}
+      } ${!hasContent ? styles.noContent : ""}`}
       onClick={handleClick}
+      style={{ cursor: hasContent ? 'pointer' : 'default' }}
     >
       {/* Sci-fi geometric elements */}
       <div className={styles.sciFiElements}></div>
@@ -191,17 +220,25 @@ export default function TransmissionBox({
 
         {/* Actions */}
         <div className={styles.actions}>
-          {hasEditPermission() && (
-            <div className={styles.editButton} onClick={handleEditClick}>
-              <span>EDIT_TRANSMISSION</span>
-              <span>✎</span>
+          <div className={styles.leftActions}>
+            {hasEditPermission() && (
+              <div className={styles.editButton} onClick={handleEditClick}>
+                <span>EDIT_TRANSMISSION</span>
+                <span>✎</span>
+              </div>
+            )}
+          </div>
+          <div className={styles.rightActions}>
+            <div className={`${styles.openAction} ${!hasContent ? styles.openActionDisabled : ''}`}>
+              <span>
+                {!hasContent
+                  ? "NO_CONTENT"
+                  : (isExpanded ? "CLOSE_TRANSMISSION" : "OPEN_TRANSMISSION")}
+              </span>
+              <span>
+                {!hasContent ? "⊘" : (isExpanded ? "«" : "»")}
+              </span>
             </div>
-          )}
-          <div className={styles.openAction}>
-            <span>
-              {isExpanded ? "CLOSE_TRANSMISSION" : "OPEN_TRANSMISSION"}
-            </span>
-            <span>{isExpanded ? "«" : "»"}</span>
           </div>
         </div>
       </div>

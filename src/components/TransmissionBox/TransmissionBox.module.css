@@ -332,9 +332,18 @@
 
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+}
+
+.leftActions {
+  display: flex;
+  align-items: center;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
 }
 
 .openAction {
@@ -349,6 +358,16 @@
 
 .transmissionBox:hover .openAction {
   color: var(--color-nasa);
+}
+
+.openActionDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.transmissionBox:hover .openActionDisabled {
+  color: var(--color-gray-dark);
+  opacity: 0.4;
 }
 
 .editButton {

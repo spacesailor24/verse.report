@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import TransmissionBox from "@/components/TransmissionBox/TransmissionBox";
 import TransmissionSkeleton from "@/components/TransmissionBox/TransmissionSkeleton";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
-import { useFilters } from "@/contexts/FilterContext";
 import styles from "./broadcast.module.css";
 
 interface Tag {
@@ -240,10 +239,13 @@ function BroadcastForm() {
     // Format for datetime-local input (YYYY-MM-DDTHH:MM)
     return now.toISOString().slice(0, 16);
   });
+  const [localSelectedTags, setLocalSelectedTags] = useState<Set<string>>(new Set());
+  const [editTransmissionId, setEditTransmissionId] = useState<string | null>(null);
 
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { getActiveTagFilters, toggleFilter, selectedFilters } = useFilters();
+  const searchParams = useSearchParams();
+  // Note: Not using global filters anymore to avoid interference with main transmission list
 
   // Check if all required fields are filled
   const isFormValid = title.trim() && subtitle.trim() && sourceId !== null;
@@ -313,8 +315,8 @@ function BroadcastForm() {
 
       const { tag } = await response.json();
 
-      // Add the new tag to the selected filters
-      toggleFilter(`tag-${tag.id}`);
+      // Add the new tag to local selected tags
+      setLocalSelectedTags(prev => new Set([...prev, tag.id.toString()]));
 
       // Add the new tag to the categories list
       setCategories(prevCategories =>
@@ -399,8 +401,12 @@ function BroadcastForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/transmissions", {
-        method: "POST",
+      const isEditMode = editTransmissionId !== null;
+      const apiUrl = isEditMode ? `/api/transmissions/${editTransmissionId}` : "/api/transmissions";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(apiUrl, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -412,12 +418,12 @@ function BroadcastForm() {
           sourceUrl: sourceUrl.trim() || null,
           type,
           publishedAt: new Date(publishedAt).toISOString(),
-          tagIds: getActiveTagFilters(),
+          tagIds: Array.from(localSelectedTags),
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create transmission");
+        throw new Error(isEditMode ? "Failed to update transmission" : "Failed to create transmission");
       }
 
       // Reset form
@@ -429,7 +435,11 @@ function BroadcastForm() {
       setType("OFFICIAL");
       setPublishedAt(new Date().toISOString().slice(0, 16));
 
-      // Redirect to home
+      // Clear local selected tags and edit mode
+      setLocalSelectedTags(new Set());
+      setEditTransmissionId(null);
+
+      // Clear URL search params and redirect to home
       router.push("/");
     } catch (error) {
       console.error("Error creating transmission:", error);
@@ -439,9 +449,9 @@ function BroadcastForm() {
     }
   };
 
-  // Create preview data with selected tags from filters
+  // Create preview data with selected tags from local state
   const getSelectedTagsData = useMemo(() => {
-    const selectedTagIds = getActiveTagFilters();
+    const selectedTagIds = Array.from(localSelectedTags);
     const tagData: Array<{
       id: string;
       name: string;
@@ -464,7 +474,54 @@ function BroadcastForm() {
     });
 
     return tagData;
-  }, [selectedFilters, categories]);
+  }, [localSelectedTags, categories]);
+
+  // Handle edit parameter to pre-fill form
+  useEffect(() => {
+    const editParam = searchParams.get('edit');
+    if (editParam) {
+      try {
+        // Decode the base64 data
+        const base64 = editParam
+          .replace(/-/g, '+')
+          .replace(/_/g, '/')
+          + '='.repeat((4 - editParam.length % 4) % 4);
+        const editDataJson = atob(base64);
+        const editData = JSON.parse(editDataJson);
+
+        // Pre-fill the form with edit data
+        setTitle(editData.title || '');
+        setSubtitle(editData.subtitle || '');
+        setContent(editData.content || '');
+        setType(editData.type || 'OFFICIAL');
+        setSourceUrl(editData.sourceUrl || '');
+
+        // Set sourceId if available
+        if (editData.sourceId) {
+          setSourceId(editData.sourceId);
+        }
+
+        // Handle publishedAt date formatting
+        if (editData.publishedAt) {
+          const date = new Date(editData.publishedAt);
+          setPublishedAt(date.toISOString().slice(0, 16));
+        }
+
+        // Set local selected tags for edit mode instead of using global filters
+        if (editData.tagIds && Array.isArray(editData.tagIds)) {
+          setLocalSelectedTags(new Set(editData.tagIds.map((id: string | number) => id.toString())));
+        }
+
+        // Store transmission ID for update operation
+        if (editData.id) {
+          setEditTransmissionId(editData.id);
+        }
+
+      } catch (error) {
+        console.error('Error parsing edit data:', error);
+      }
+    }
+  }, [searchParams]);
 
   const selectedSource = sources.find(s => s.id === sourceId);
 
@@ -474,6 +531,7 @@ function BroadcastForm() {
     content: content || "Write your transmission content here...",
     summary: subtitle || "Brief description or summary...",
     type,
+    sourceId: sourceId || 0,
     sourceAuthor: selectedSource ? selectedSource.name : "Select a source...",
     sourceUrl: sourceUrl || null,
     publishedAt: new Date(publishedAt).toISOString(),
@@ -678,7 +736,9 @@ function BroadcastForm() {
                     className={styles.submitButton}
                     disabled={isLoading || !isFormValid}
                   >
-                    {isLoading ? "BROADCASTING..." : "BROADCAST_TRANSMISSION"}
+                    {isLoading
+                      ? (editTransmissionId ? "UPDATING..." : "BROADCASTING...")
+                      : (editTransmissionId ? "UPDATE_TRANSMISSION" : "BROADCAST_TRANSMISSION")}
                   </button>
                 </div>
               </form>

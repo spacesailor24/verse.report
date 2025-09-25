@@ -124,6 +124,7 @@ export async function GET(request: NextRequest) {
       content: transmission.content || '',
       summary: transmission.subTitle,
       type: transmission.type,
+      sourceId: transmission.source.id,
       sourceAuthor: transmission.source.name,
       sourceUrl: transmission.sourceUrl,
       publishedAt: transmission.publishedAt?.toISOString(),

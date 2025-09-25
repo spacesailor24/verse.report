@@ -16,57 +16,24 @@ export default function TimelineClient({
   const { toggleMobileMenu } = useMobileMenu();
   const [currentViewDate, setCurrentViewDate] = useState<{ year: number; month: number; day: number } | null>(null);
 
-  // Find the closest available date to today
-  const getClosestAvailableDate = () => {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    const currentDay = today.getDate();
+  // Helper function to find first available month
+  const getFirstAvailableMonth = (year: number) => {
+    const yearData = dateAvailability[year];
+    if (!yearData) return 0;
 
-    // Check if today has transmissions
-    if (dateAvailability[currentYear]?.[currentMonth]?.has(currentDay)) {
-      return { year: currentYear, month: currentMonth, day: currentDay };
-    }
-
-    // Find all available dates and calculate distance from today
-    const allDates: Array<{ year: number; month: number; day: number; distance: number }> = [];
-
-    Object.keys(dateAvailability).forEach(yearStr => {
-      const year = parseInt(yearStr);
-      Object.keys(dateAvailability[year]).forEach(monthStr => {
-        const month = parseInt(monthStr);
-        dateAvailability[year][month].forEach(day => {
-          const date = new Date(year, month, day);
-          const distance = Math.abs(date.getTime() - today.getTime());
-          allDates.push({ year, month, day, distance });
-        });
-      });
-    });
-
-    // Sort by distance and return closest
-    allDates.sort((a, b) => a.distance - b.distance);
-
-    if (allDates.length > 0) {
-      return allDates[0];
-    }
-
-    // Fallback to first available date
-    const firstYear = availableYears[0];
-    if (firstYear && dateAvailability[firstYear]) {
-      for (let month = 0; month < 12; month++) {
-        if (dateAvailability[firstYear][month] && dateAvailability[firstYear][month].size > 0) {
-          const firstDay = Math.min(...Array.from(dateAvailability[firstYear][month]));
-          return { year: firstYear, month, day: firstDay };
-        }
+    for (let month = 0; month < 12; month++) {
+      if (yearData[month] && yearData[month].size > 0) {
+        return month;
       }
     }
-
-    return { year: availableYears[0] || new Date().getFullYear(), month: 0, day: null };
+    return 0;
   };
 
-  const closestDate = getClosestAvailableDate();
-  const [selectedYear, setSelectedYear] = useState(closestDate.year);
-  const [selectedMonth, setSelectedMonth] = useState(closestDate.month);
+  // Initialize with current year but don't auto-select specific dates
+  const currentYear = new Date().getFullYear();
+  const defaultYear = availableYears.includes(currentYear) ? currentYear : (availableYears[0] || currentYear);
+  const [selectedYear, setSelectedYear] = useState(defaultYear);
+  const [selectedMonth, setSelectedMonth] = useState(() => getFirstAvailableMonth(defaultYear));
   const [selectedDay, setSelectedDay] = useState<number | null>(null); // Don't select a day by default
   const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -86,18 +53,6 @@ export default function TimelineClient({
   ];
 
   const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-
-  const getFirstAvailableMonth = (year: number) => {
-    const yearData = dateAvailability[year];
-    if (!yearData) return 0;
-
-    for (let month = 0; month < 12; month++) {
-      if (yearData[month] && yearData[month].size > 0) {
-        return month;
-      }
-    }
-    return 0;
-  };
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);

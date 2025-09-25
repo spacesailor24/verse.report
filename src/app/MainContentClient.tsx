@@ -107,7 +107,7 @@ export default function MainContentClient({ selectedYear }: MainContentClientPro
       currentViewDateRef.current = newViewDate;
       setCurrentViewDate(newViewDate);
 
-      // Update timeline highlighting
+      // Always update timeline highlighting during scroll
       if ((window as any).updateTimelineHighlight) {
         (window as any).updateTimelineHighlight(year, month, day);
       }
