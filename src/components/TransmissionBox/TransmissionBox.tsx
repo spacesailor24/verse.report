@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
+import ImageModal from "../ImageModal/ImageModal";
 import styles from "./TransmissionBox.module.css";
 
 export type TransmissionType = "OFFICIAL" | "LEAK" | "PREDICTION";
@@ -67,6 +69,7 @@ export default function TransmissionBox({
   autoExpand = false
 }: TransmissionBoxProps) {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
+  const [modalImage, setModalImage] = useState<{ src: string; alt: string } | null>(null);
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -163,8 +166,6 @@ export default function TransmissionBox({
       className={`${styles.transmissionBox} ${
         isExpanded ? styles.expanded : ""
       } ${!hasContent ? styles.noContent : ""} ${isShared ? styles.sharedTransmission : ""}`}
-      onClick={handleClick}
-      style={{ cursor: hasContent ? 'pointer' : 'default' }}
     >
       {/* Sci-fi geometric elements */}
       <div className={styles.sciFiElements}></div>
@@ -245,7 +246,9 @@ export default function TransmissionBox({
 
       {/* Content Area */}
       <div className={styles.contentArea}>
-        <div className={styles.contentHeader}>
+        <div className={styles.contentHeader}
+             onClick={handleClick}
+             style={{ cursor: hasContent ? 'pointer' : 'default' }}>
           <div className={styles.titleSection}>
             <h3 className={styles.title}>{transmission.title}</h3>
             {transmission.summary && (
@@ -261,7 +264,9 @@ export default function TransmissionBox({
         </div>
 
         {/* Actions */}
-        <div className={styles.actions}>
+        <div className={styles.actions}
+             onClick={handleClick}
+             style={{ cursor: hasContent ? 'pointer' : 'default' }}>
           <div className={styles.leftActions}>
             {hasEditPermission() && (
               <div className={styles.editButton} onClick={handleEditClick}>
@@ -289,10 +294,38 @@ export default function TransmissionBox({
       {isExpanded && (
         <div className={styles.expandedContent}>
           <div className={styles.markdownContent}>
-            <ReactMarkdown>{transmission.content}</ReactMarkdown>
+            <ReactMarkdown
+              components={{
+                img: ({ src, alt, ...props }) => (
+                  <img
+                    {...props}
+                    src={src}
+                    alt={alt || ""}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalImage({ src: src || "", alt: alt || "" });
+                    }}
+                  />
+                ),
+              }}
+            >
+              {transmission.content}
+            </ReactMarkdown>
           </div>
         </div>
       )}
+
+      {/* Image Modal rendered at document level */}
+      {modalImage && typeof document !== "undefined" &&
+        createPortal(
+          <ImageModal
+            src={modalImage.src}
+            alt={modalImage.alt}
+            isOpen={!!modalImage}
+            onClose={() => setModalImage(null)}
+          />,
+          document.body
+        )}
     </div>
   );
 }

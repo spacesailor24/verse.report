@@ -593,6 +593,21 @@
   font-weight: bold;
 }
 
+.markdownContent img {
+  display: block;
+  margin: 1rem auto;
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+}
+
+.markdownContent img:hover {
+  opacity: 0.8;
+}
+
 /* Shared transmission highlighting - persistent orange glow like hover effect */
 .sharedTransmission {
   background: linear-gradient(
