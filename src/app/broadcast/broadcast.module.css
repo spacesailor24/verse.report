@@ -481,6 +481,7 @@
   letter-spacing: 0.05em;
   border-radius: 4px;
   white-space: nowrap;
+  min-width: 140px;
 }
 
 .createTagButton:hover:not(:disabled) {
@@ -507,6 +508,7 @@
   letter-spacing: 0.05em;
   border-radius: 4px;
   white-space: nowrap;
+  min-width: 160px;
 }
 
 .createSourceButton:hover:not(:disabled) {
@@ -519,6 +521,45 @@
   cursor: not-allowed;
   border-color: var(--border-primary);
   color: var(--text-tertiary);
+}
+
+.createButtonSuccess {
+  animation: terminalFlash 0.8s ease;
+  color: #00ff00 !important;
+  border-color: #00ff00 !important;
+}
+
+@keyframes terminalFlash {
+  0% {
+    background: transparent;
+    color: var(--color-nasa);
+    box-shadow: none;
+  }
+  20% {
+    background: #00ff00;
+    color: #000000;
+    box-shadow: 0 0 20px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.3);
+  }
+  40% {
+    background: #00ff00;
+    color: #000000;
+    box-shadow: 0 0 30px #00ff00, inset 0 0 30px rgba(0, 255, 0, 0.5);
+  }
+  60% {
+    background: rgba(0, 255, 0, 0.5);
+    color: #00ff00;
+    box-shadow: 0 0 20px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.3);
+  }
+  80% {
+    background: rgba(0, 255, 0, 0.2);
+    color: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+  }
+  100% {
+    background: transparent;
+    color: #00ff00;
+    box-shadow: 0 0 5px #00ff00;
+  }
 }
 
 .tagHelperText {

@@ -231,9 +231,11 @@ function BroadcastForm() {
   const [newTagName, setNewTagName] = useState("");
   const [newTagCategory, setNewTagCategory] = useState<number | null>(null);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
+  const [tagCreatedSuccess, setTagCreatedSuccess] = useState(false);
   const [newSourceName, setNewSourceName] = useState("");
   const [newSourceDescription, setNewSourceDescription] = useState("");
   const [isCreatingSource, setIsCreatingSource] = useState(false);
+  const [sourceCreatedSuccess, setSourceCreatedSuccess] = useState(false);
   const [publishedAt, setPublishedAt] = useState(() => {
     // Default to current date/time
     const now = new Date();
@@ -356,7 +358,9 @@ function BroadcastForm() {
       setNewTagName("");
       setNewTagCategory(null);
 
-      alert(`Tag "${tag.name}" created and selected!`);
+      // Show success state
+      setTagCreatedSuccess(true);
+      setTimeout(() => setTagCreatedSuccess(false), 2000);
     } catch (error: any) {
       console.error("Error creating tag:", error);
       alert(error.message || "Failed to create tag. Please try again.");
@@ -402,7 +406,9 @@ function BroadcastForm() {
       setNewSourceName("");
       setNewSourceDescription("");
 
-      alert(`Source "${source.name}" created and selected!`);
+      // Show success state
+      setSourceCreatedSuccess(true);
+      setTimeout(() => setSourceCreatedSuccess(false), 2000);
     } catch (error) {
       console.error("Error creating source:", error);
       alert(`Failed to create source: ${error instanceof Error ? error.message : "Please try again."}`);
@@ -733,10 +739,10 @@ function BroadcastForm() {
                   <button
                     type="button"
                     onClick={handleCreateTag}
-                    className={styles.createTagButton}
+                    className={`${styles.createTagButton} ${tagCreatedSuccess ? styles.createButtonSuccess : ''}`}
                     disabled={isCreatingTag || !newTagName.trim() || !newTagCategory}
                   >
-                    {isCreatingTag ? "CREATING..." : "CREATE_TAG"}
+                    {isCreatingTag ? "CREATING..." : tagCreatedSuccess ? "✓" : "CREATE_TAG"}
                   </button>
                 </div>
                 <div className={styles.tagHelperText}>
@@ -766,10 +772,10 @@ function BroadcastForm() {
                   <button
                     type="button"
                     onClick={handleCreateSource}
-                    className={styles.createSourceButton}
+                    className={`${styles.createSourceButton} ${sourceCreatedSuccess ? styles.createButtonSuccess : ''}`}
                     disabled={isCreatingSource || !newSourceName.trim()}
                   >
-                    {isCreatingSource ? "CREATING..." : "CREATE_SOURCE"}
+                    {isCreatingSource ? "CREATING..." : sourceCreatedSuccess ? "✓" : "CREATE_SOURCE"}
                   </button>
                 </div>
                 <div className={styles.tagHelperText}>
