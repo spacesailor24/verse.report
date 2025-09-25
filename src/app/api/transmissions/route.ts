@@ -185,7 +185,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
     }
 
-    const { title, subtitle, content, sourceId, sourceUrl, type, tagIds } = await request.json();
+    const { title, subtitle, content, sourceId, sourceUrl, type, publishedAt, tagIds } = await request.json();
+
+    console.log('Received transmission data:', { title, subtitle, sourceId, type, publishedAt, tagIds });
 
     // Validate input
     if (!title || typeof title !== 'string') {
@@ -206,21 +208,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Valid type is required' }, { status: 400 });
     }
 
+    if (!publishedAt || typeof publishedAt !== 'string') {
+      return NextResponse.json({ error: 'Published date is required' }, { status: 400 });
+    }
+
+    // Validate publishedAt is a valid date
+    const publishedDate = new Date(publishedAt);
+    if (isNaN(publishedDate.getTime())) {
+      return NextResponse.json({ error: 'Published date must be a valid date' }, { status: 400 });
+    }
+
     // Validate tagIds if provided
-    let validatedTagIds: string[] = [];
+    let validatedTagIds: number[] = [];
     if (tagIds && Array.isArray(tagIds)) {
-      // Ensure all tagIds are strings and exist in the database
-      const tags = await prisma.tag.findMany({
-        where: {
-          id: {
-            in: tagIds.filter(id => typeof id === 'string'),
+      // Convert string IDs to numbers and filter out invalid ones
+      const numericTagIds = tagIds
+        .map(id => typeof id === 'string' ? parseInt(id, 10) : id)
+        .filter(id => typeof id === 'number' && !isNaN(id));
+
+      if (numericTagIds.length > 0) {
+        // Ensure all tagIds exist in the database
+        const tags = await prisma.tag.findMany({
+          where: {
+            id: {
+              in: numericTagIds,
+            },
           },
-        },
-        select: {
-          id: true,
-        },
-      });
-      validatedTagIds = tags.map(tag => tag.id);
+          select: {
+            id: true,
+          },
+        });
+        validatedTagIds = tags.map(tag => tag.id);
+      }
     }
 
     // Create the transmission with tag relationships
@@ -233,7 +252,7 @@ export async function POST(request: NextRequest) {
         sourceUrl: sourceUrl?.trim() || null,
         type,
         status: 'PUBLISHED',
-        publishedAt: new Date(),
+        publishedAt: publishedDate,
         publisherId: session.user.id,
         transmissionTags: {
           create: validatedTagIds.map(tagId => ({
@@ -297,6 +316,16 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
   } catch (error) {
     console.error('Error creating transmission:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+    // More specific error handling
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

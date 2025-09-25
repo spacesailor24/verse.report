@@ -234,6 +234,12 @@ function BroadcastForm() {
   const [newSourceName, setNewSourceName] = useState("");
   const [newSourceDescription, setNewSourceDescription] = useState("");
   const [isCreatingSource, setIsCreatingSource] = useState(false);
+  const [publishedAt, setPublishedAt] = useState(() => {
+    // Default to current date/time
+    const now = new Date();
+    // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+    return now.toISOString().slice(0, 16);
+  });
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -405,6 +411,7 @@ function BroadcastForm() {
           sourceId: sourceId,
           sourceUrl: sourceUrl.trim() || null,
           type,
+          publishedAt: new Date(publishedAt).toISOString(),
           tagIds: getActiveTagFilters(),
         }),
       });
@@ -420,6 +427,7 @@ function BroadcastForm() {
       setSourceId(null);
       setSourceUrl("");
       setType("OFFICIAL");
+      setPublishedAt(new Date().toISOString().slice(0, 16));
 
       // Redirect to home
       router.push("/");
@@ -468,7 +476,7 @@ function BroadcastForm() {
     type,
     sourceAuthor: selectedSource ? selectedSource.name : "Select a source...",
     sourceUrl: sourceUrl || null,
-    publishedAt: new Date().toISOString(),
+    publishedAt: new Date(publishedAt).toISOString(),
     publisher: {
       id: session?.user?.id || "preview-user",
       name: session?.user?.name || "Preview User",
@@ -543,6 +551,23 @@ function BroadcastForm() {
                     disabled={isLoading || sourcesLoading}
                     placeholder="Select source..."
                   />
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="publishedAt" className={styles.label}>
+                  PUBLISHED DATE *
+                </label>
+                <input
+                  id="publishedAt"
+                  type="datetime-local"
+                  value={publishedAt}
+                  onChange={(e) => setPublishedAt(e.target.value)}
+                  className={styles.input}
+                  required
+                />
+                <div className={styles.tagHelperText}>
+                  Set the actual date/time when this news occurred (can be in the past)
                 </div>
               </div>
 

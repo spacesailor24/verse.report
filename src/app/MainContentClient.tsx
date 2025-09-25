@@ -219,7 +219,7 @@ export default function MainContentClient({ selectedYear }: MainContentClientPro
   }, []);
 
   return (
-    <main ref={mainRef} className="flex-1 p-4 overflow-y-auto">
+    <main ref={mainRef} className="flex-1 p-4 overflow-y-auto xl:ml-80">
       <TransmissionList selectedDate={selectedDate} selectedYear={selectedYear} />
     </main>
   );

@@ -6,6 +6,13 @@
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-primary);
   box-shadow: 0 2px 20px var(--nasa-subtle);
+  margin-left: 320px; /* Account for sidebar width */
+}
+
+@media (max-width: 1279px) {
+  .timelineNav {
+    margin-left: 0; /* Remove margin on mobile when sidebar is hidden */
+  }
 }
 
 .navContainer {
@@ -28,26 +35,46 @@
   flex-shrink: 0; /* Don't shrink the year dropdown */
   z-index: 10; /* Ensure dropdown menu appears above other content */
   width: 80px; /* Explicit width to ensure it takes up space */
+  min-width: 80px; /* Ensure minimum width */
+  display: block !important; /* Force display */
+}
+
+/* Ensure year dropdown is always visible on wide screens */
+@media (min-width: 1280px) {
+  .yearDropdownContainer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .yearDropdown {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
 }
 
 .yearDropdown {
   background: var(--bg-overlay-medium);
   border: 1px solid var(--border-primary);
-  color: var(--color-text-muted);
+  color: var(--color-text-primary);
   font-family: var(--font-mono), monospace;
   font-size: 11px;
   padding: 8px 12px;
   cursor: pointer;
   letter-spacing: 1px;
   transition: all 0.2s ease;
-  display: flex;
+  display: flex !important;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
   width: 80px;
   max-width: 80px;
+  min-width: 80px;
   outline: none;
   border-radius: 0;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .yearDropdown:hover {
@@ -348,6 +375,16 @@
   margin-right: 1rem;
   position: relative;
   z-index: 1100;
+}
+
+/* Explicitly hide hamburger on wide screens */
+@media (min-width: 1280px) {
+  .hamburgerButton {
+    display: none !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
 @media (max-width: 1279px) {

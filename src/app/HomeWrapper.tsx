@@ -9,12 +9,7 @@ export default function HomeWrapper() {
   return (
     <MobileMenuProvider>
       <div className="flex h-screen">
-        <div className="hidden xl:block">
-          <Sidebar />
-        </div>
-        <div className="xl:hidden">
-          <Sidebar />
-        </div>
+        <Sidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <Timeline />
           <HomeClient />
