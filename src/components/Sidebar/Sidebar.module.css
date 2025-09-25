@@ -105,6 +105,36 @@
   color: var(--accent-nasa);
 }
 
+.broadcastHelperText {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 1.5rem;
+  font-style: italic;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+/* Skeleton category placeholders */
+.skeletonCategory1,
+.skeletonCategory2,
+.skeletonCategory3,
+.skeletonCategory4,
+.skeletonCategory5,
+.skeletonCategory6 {
+  height: 11px;
+  background-color: var(--bg-surface-subtle);
+  border-radius: 1px;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.skeletonCategory1 { width: 40px; }
+.skeletonCategory2 { width: 60px; }
+.skeletonCategory3 { width: 75px; }
+.skeletonCategory4 { width: 70px; }
+.skeletonCategory5 { width: 50px; }
+.skeletonCategory6 { width: 65px; }
+
 .categoriesContainer {
   flex: 1;
   overflow-y: auto;

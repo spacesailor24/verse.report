@@ -28,6 +28,27 @@ enum CategoryType {
   FEATURE
 }
 
+// Source model for reusable source references
+model Source {
+  id          Int    @id @default(autoincrement())
+  name        String @unique // Display name (e.g., "Spectrum", "CitizenCon")
+  slug        String @unique // URL-friendly version (e.g., "spectrum", "citizencon")
+  description String? @db.Text
+
+  // Display order for UI
+  sortOrder Int @default(0)
+
+  // System fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  transmissions Transmission[]
+
+  @@index([slug])
+  @@index([sortOrder])
+}
+
 // Main transmission model
 model Transmission {
   id          String             @id @default(cuid())
@@ -39,9 +60,10 @@ model Transmission {
   isHighlight Boolean            @default(false)
 
   // Metadata
-  sourceUrl    String?
-  sourceAuthor String
-  publishedAt  DateTime?
+  sourceUrl String?
+  sourceId  Int
+  source    Source @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  publishedAt DateTime?
 
   // Publisher (user who created the transmission)
   publisherId String
@@ -57,7 +79,7 @@ model Transmission {
   // Indexes for faster queries
   @@index([type])
   @@index([status])
-  @@index([sourceAuthor])
+  @@index([sourceId])
   @@index([publishedAt])
   @@index([publisherId])
 }

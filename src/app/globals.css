@@ -33,10 +33,10 @@
   --color-text-ghost: rgba(255, 255, 255, 0.2);
 
   /* Border Colors */
-  --border-primary: rgba(255, 255, 255, 0.1);
-  --border-secondary: rgba(255, 255, 255, 0.05);
-  --border-subtle: rgba(255, 255, 255, 0.03);
-  --border-faint: rgba(255, 255, 255, 0.02);
+  --border-primary: rgba(255, 255, 255, 0.2);
+  --border-secondary: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-faint: rgba(255, 255, 255, 0.03);
 
   /* Background Colors */
   --bg-overlay-dark: rgba(0, 0, 0, 0.95);

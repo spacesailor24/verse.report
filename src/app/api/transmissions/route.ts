@@ -102,6 +102,13 @@ export async function GET(request: NextRequest) {
             email: true,
           },
         },
+        source: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
       orderBy: {
         publishedAt: 'desc',
@@ -117,7 +124,7 @@ export async function GET(request: NextRequest) {
       content: transmission.content || '',
       summary: transmission.subTitle,
       type: transmission.type,
-      sourceAuthor: transmission.sourceAuthor,
+      sourceAuthor: transmission.source.name,
       sourceUrl: transmission.sourceUrl,
       publishedAt: transmission.publishedAt?.toISOString(),
       publisher: {
@@ -178,7 +185,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
     }
 
-    const { title, subtitle, content, sourceAuthor, sourceUrl, type } = await request.json();
+    const { title, subtitle, content, sourceId, sourceUrl, type, tagIds } = await request.json();
 
     // Validate input
     if (!title || typeof title !== 'string') {
@@ -189,30 +196,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Subtitle is required' }, { status: 400 });
     }
 
-    if (!content || typeof content !== 'string') {
-      return NextResponse.json({ error: 'Content is required' }, { status: 400 });
-    }
+    // Content is optional now
 
-    if (!sourceAuthor || typeof sourceAuthor !== 'string') {
-      return NextResponse.json({ error: 'Source author is required' }, { status: 400 });
+    if (!sourceId || typeof sourceId !== 'number') {
+      return NextResponse.json({ error: 'Source ID is required' }, { status: 400 });
     }
 
     if (!type || !['OFFICIAL', 'LEAK', 'PREDICTION'].includes(type)) {
       return NextResponse.json({ error: 'Valid type is required' }, { status: 400 });
     }
 
-    // Create the transmission
+    // Validate tagIds if provided
+    let validatedTagIds: string[] = [];
+    if (tagIds && Array.isArray(tagIds)) {
+      // Ensure all tagIds are strings and exist in the database
+      const tags = await prisma.tag.findMany({
+        where: {
+          id: {
+            in: tagIds.filter(id => typeof id === 'string'),
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+      validatedTagIds = tags.map(tag => tag.id);
+    }
+
+    // Create the transmission with tag relationships
     const newTransmission = await prisma.transmission.create({
       data: {
         title: title.trim(),
         subTitle: subtitle.trim(),
-        content: content.trim(),
-        sourceAuthor: sourceAuthor.trim(),
+        content: content?.trim() || null,
+        sourceId: sourceId,
         sourceUrl: sourceUrl?.trim() || null,
         type,
         status: 'PUBLISHED',
         publishedAt: new Date(),
         publisherId: session.user.id,
+        transmissionTags: {
+          create: validatedTagIds.map(tagId => ({
+            tagId,
+          })),
+        },
       },
       include: {
         transmissionTags: {
@@ -231,6 +258,13 @@ export async function POST(request: NextRequest) {
             email: true,
           },
         },
+        source: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
 
@@ -241,7 +275,7 @@ export async function POST(request: NextRequest) {
       content: newTransmission.content || '',
       summary: newTransmission.subTitle,
       type: newTransmission.type,
-      sourceAuthor: newTransmission.sourceAuthor,
+      sourceAuthor: newTransmission.source.name,
       sourceUrl: newTransmission.sourceUrl,
       publishedAt: newTransmission.publishedAt?.toISOString(),
       publisher: {

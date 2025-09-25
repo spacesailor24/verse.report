@@ -8,6 +8,7 @@
   flex: 1;
   margin-left: 320px;
   padding: 2rem;
+  max-width: none;
 }
 
 @media (max-width: 1279px) {
@@ -19,6 +20,42 @@
 .content {
   max-width: 1000px;
   margin: 0 auto;
+}
+
+.splitContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  height: calc(100vh - 4rem);
+  align-items: start;
+}
+
+@media (max-width: 1400px) {
+  .splitContainer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border-primary);
+  padding-left: 2rem;
+}
+
+@media (max-width: 1400px) {
+  .previewSection {
+    border-left: none;
+    border-top: 1px solid var(--border-primary);
+    padding-left: 0;
+    padding-top: 2rem;
+  }
 }
 
 .header {
@@ -40,6 +77,33 @@
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin: 0;
+}
+
+.previewHeader {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 1rem;
+}
+
+.previewTitle {
+  font-family: var(--font-mono), monospace;
+  font-size: 1.5rem;
+  color: var(--color-nasa);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.05em;
+}
+
+.previewSubtitle {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.previewContainer {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 400px;
 }
 
 .form {
@@ -145,9 +209,420 @@
   box-shadow: 0 0 10px var(--nasa-glow);
 }
 
-.submitButton:disabled,
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--border-primary);
+  color: var(--text-tertiary);
+}
+
 .cancelButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Custom Type Dropdown */
+.typeDropdownWrapper {
+  position: relative;
+}
+
+.typeDropdown {
+  background: var(--bg-surface-faint);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  outline: none;
+  text-align: left;
+}
+
+.typeDropdown:hover:not(:disabled) {
+  border-color: var(--nasa-glow);
+  color: var(--color-nasa);
+}
+
+.typeDropdown:focus,
+.typeDropdownOpen {
+  outline: none;
+  border-color: var(--color-nasa);
+  color: var(--color-nasa);
+  background: var(--nasa-faint);
+}
+
+.typeDropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.typeDropdownText {
+  flex: 1;
+  text-align: left;
+}
+
+.typeDropdownArrow {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.typeDropdown:hover:not(:disabled) .typeDropdownArrow {
+  color: var(--color-nasa);
+}
+
+.typeDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-black);
+  border: 1px solid var(--nasa-glow);
+  border-top: none;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0 0 4px 4px;
+}
+
+.typeDropdownItem {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.typeDropdownItem:hover {
+  background: var(--nasa-subtle);
+  color: var(--color-nasa);
+}
+
+.typeDropdownItemActive {
+  background: var(--nasa-light);
+  color: var(--color-nasa);
+  font-weight: bold;
+}
+
+/* Custom Category Dropdown */
+.categoryDropdownWrapper {
+  position: relative;
+}
+
+.categoryDropdown {
+  background: var(--bg-surface-faint);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  outline: none;
+  text-align: left;
+}
+
+.categoryDropdown:hover:not(:disabled) {
+  border-color: var(--nasa-glow);
+  color: var(--color-nasa);
+}
+
+.categoryDropdown:focus,
+.categoryDropdownOpen {
+  outline: none;
+  border-color: var(--color-nasa);
+  color: var(--color-nasa);
+  background: var(--nasa-faint);
+}
+
+.categoryDropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.categoryDropdownText {
+  flex: 1;
+  text-align: left;
+}
+
+.categoryDropdownArrow {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.categoryDropdown:hover:not(:disabled) .categoryDropdownArrow {
+  color: var(--color-nasa);
+}
+
+.categoryDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-black);
+  border: 1px solid var(--nasa-glow);
+  border-top: none;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0 0 4px 4px;
+}
+
+.categoryDropdownItem {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.categoryDropdownItem:hover {
+  background: var(--nasa-subtle);
+  color: var(--color-nasa);
+}
+
+.categoryDropdownItemActive {
+  background: var(--nasa-light);
+  color: var(--color-nasa);
+  font-weight: bold;
+}
+
+/* New Tag Creation */
+.newTagContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .newTagContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* New Source Creation - same styling but different grid for 2 inputs + button */
+.newSourceContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .newSourceContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+.createTagButton {
+  background: transparent;
+  border: 1px solid var(--color-nasa);
+  color: var(--color-nasa);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.createTagButton:hover:not(:disabled) {
+  background: var(--nasa-medium);
+  box-shadow: 0 0 10px var(--nasa-glow);
+}
+
+.createTagButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--border-primary);
+  color: var(--text-tertiary);
+}
+
+.createSourceButton {
+  background: transparent;
+  border: 1px solid var(--color-nasa);
+  color: var(--color-nasa);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.createSourceButton:hover:not(:disabled) {
+  background: var(--nasa-medium);
+  box-shadow: 0 0 10px var(--nasa-glow);
+}
+
+.createSourceButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--border-primary);
+  color: var(--text-tertiary);
+}
+
+.tagHelperText {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Tags Section */
+.tagsSection {
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  background: var(--bg-surface-faint);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.tagsLoading {
+  padding: 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.categoriesContainer {
+  padding: 0.5rem;
+}
+
+.tagCategoryGroup {
+  margin-bottom: 0.5rem;
+}
+
+.tagCategoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.tagExpandButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0;
+  min-width: 20px;
+  text-align: left;
+}
+
+.tagExpandButton:hover {
+  color: var(--color-nasa);
+}
+
+.tagExpandIcon {
+  display: inline-block;
+  width: 16px;
+}
+
+.tagCategoryName {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.tagSelectedCount {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--color-nasa);
+  font-weight: bold;
+}
+
+.tagsList {
+  margin-left: 1rem;
+  border-left: 1px solid var(--border-primary);
+  padding-left: 0.5rem;
+}
+
+.tagButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.25rem 0;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tagButton:hover {
+  color: var(--text-primary);
+}
+
+.tagConnector {
+  font-family: var(--font-mono), monospace;
+  color: var(--border-primary);
+  width: 10px;
+  text-align: center;
+}
+
+.tagCheckbox {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+}
+
+.tagCheckboxActive {
+  color: var(--color-nasa);
+}
+
+.tagCheckboxInactive {
+  color: var(--text-tertiary);
+}
+
+.tagName {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+}
+
+.tagNameActive {
+  color: var(--text-primary);
+}
+
+.tagNameInactive {
+  color: var(--text-secondary);
 }
 

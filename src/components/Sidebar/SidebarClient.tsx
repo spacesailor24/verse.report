@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { useFilters } from "@/contexts/FilterContext";
@@ -49,12 +49,12 @@ interface SidebarClientProps {
 
 const getCategoryColor = (categorySlug: string) => {
   const colorMap = {
-    'ships': 'var(--category-ship)',
-    'patches': 'var(--category-patch)',
-    'creatures': 'var(--category-creature)',
-    'locations': 'var(--category-location)',
-    'events': 'var(--category-event)',
-    'features': 'var(--category-feature)',
+    ships: "var(--category-ship)",
+    patches: "var(--category-patch)",
+    creatures: "var(--category-creature)",
+    locations: "var(--category-location)",
+    events: "var(--category-event)",
+    features: "var(--category-feature)",
   };
   return colorMap[categorySlug as keyof typeof colorMap] || undefined;
 };
@@ -66,6 +66,8 @@ export default function SidebarClient({
   const { selectedFilters, toggleFilter } = useFilters();
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const isBroadcastMode = pathname === "/broadcast";
   const [categories, setCategories] = useState<Category[]>(
     initialCategories.map((category) => ({ ...category, expanded: false }))
   );
@@ -73,7 +75,7 @@ export default function SidebarClient({
 
   const hasEditPermission = () => {
     const userRoles = (session?.user as any)?.roles || [];
-    return userRoles.includes('admin') || userRoles.includes('editor');
+    return userRoles.includes("admin") || userRoles.includes("editor");
   };
 
   const toggleCategoryExpansion = (categoryId: string) => {
@@ -127,23 +129,35 @@ export default function SidebarClient({
     );
 
     // Check if no tags in this category would be selected
-    const noTagsWouldBeSelected = category.tags.every(
-      (tag) => tag.id === tagId ? !wouldBeActive : !selectedFilters.has(`tag-${tag.id}`)
+    const noTagsWouldBeSelected = category.tags.every((tag) =>
+      tag.id === tagId ? !wouldBeActive : !selectedFilters.has(`tag-${tag.id}`)
     );
 
     // Auto-select/deselect parent category based on children
-    if (allTagsWouldBeSelected && !selectedFilters.has(`category-${categoryId}`)) {
+    if (
+      allTagsWouldBeSelected &&
+      !selectedFilters.has(`category-${categoryId}`)
+    ) {
       toggleFilter(`category-${categoryId}`);
-    } else if (noTagsWouldBeSelected && selectedFilters.has(`category-${categoryId}`)) {
+    } else if (
+      noTagsWouldBeSelected &&
+      selectedFilters.has(`category-${categoryId}`)
+    ) {
       toggleFilter(`category-${categoryId}`);
-    } else if (!noTagsWouldBeSelected && !allTagsWouldBeSelected && selectedFilters.has(`category-${categoryId}`)) {
+    } else if (
+      !noTagsWouldBeSelected &&
+      !allTagsWouldBeSelected &&
+      selectedFilters.has(`category-${categoryId}`)
+    ) {
       // Partial selection - remove category selection but keep individual tags
       toggleFilter(`category-${categoryId}`);
     }
   };
 
   const getActiveCount = () => {
-    return Array.from(selectedFilters).filter(filter => filter.startsWith('tag-')).length;
+    return Array.from(selectedFilters).filter((filter) =>
+      filter.startsWith("tag-")
+    ).length;
   };
 
   const isCategoryActive = (categoryId: string) => {
@@ -172,11 +186,17 @@ export default function SidebarClient({
         />
       )}
 
-      <aside className={`${styles.sidebar} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
+      <aside
+        className={`${styles.sidebar} ${
+          isMobileMenuOpen ? styles.sidebarMobileOpen : ""
+        }`}
+      >
         <div className={styles.header}>
           {/* Mobile close button - positioned like the hamburger menu */}
           <button
-            className={`${styles.mobileCloseButton} ${isMobileMenuOpen ? styles.mobileCloseButtonVisible : ''}`}
+            className={`${styles.mobileCloseButton} ${
+              isMobileMenuOpen ? styles.mobileCloseButtonVisible : ""
+            }`}
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Close menu"
           >
@@ -189,154 +209,180 @@ export default function SidebarClient({
           </div>
         </div>
 
-      <div className={styles.filterHeader}>
-        <span className={getActiveCount() > 0 ? styles.filterTitleActive : styles.filterTitle}>TRANSMISSION_FILTERS</span>
-        <span className={getActiveCount() > 0 ? styles.activeCountHighlighted : styles.activeCount}>[{getActiveCount()}]</span>
-      </div>
+        <div className={styles.filterHeader}>
+          <span
+            className={
+              getActiveCount() > 0
+                ? styles.filterTitleActive
+                : styles.filterTitle
+            }
+          >
+            {isBroadcastMode ? "SELECTED_TAGS" : "TRANSMISSION_FILTERS"}
+          </span>
+          <span
+            className={
+              getActiveCount() > 0
+                ? styles.activeCountHighlighted
+                : styles.activeCount
+            }
+          >
+            [{getActiveCount()}]
+          </span>
+        </div>
 
-      <div className={styles.categoriesContainer}>
-        {categories.map((category) => (
-          <div key={category.id} className={styles.categoryGroup}>
-            <div className={styles.categoryHeader}>
-              <button
-                onClick={() => toggleCategoryExpansion(category.id)}
-                className={styles.expandButton}
-              >
-                <span className={styles.expandIcon}>
-                  {category.expanded ? "v" : ">"}
-                </span>
-              </button>
+        {isBroadcastMode && (
+          <div className={styles.broadcastHelperText}>
+            Select tags for your transmission
+          </div>
+        )}
 
-              <button
-                onClick={() => toggleCategory(category.id)}
-                className={styles.categoryButton}
-              >
-                <span
-                  className={`${styles.categoryCheckbox} ${
-                    isCategoryActive(category.id)
-                      ? styles.categoryCheckboxActive
-                      : styles.categoryCheckboxInactive
-                  }`}
+        <div className={styles.categoriesContainer}>
+          {categories.map((category) => (
+            <div key={category.id} className={styles.categoryGroup}>
+              <div className={styles.categoryHeader}>
+                <button
+                  onClick={() => toggleCategoryExpansion(category.id)}
+                  className={styles.expandButton}
                 >
-                  [{isCategoryActive(category.id) ? "X" : " "}]
-                </span>
-                <span
-                  className={`${styles.categoryName} ${
-                    hasAnyActiveChildren(category)
-                      ? styles.categoryNameActive
-                      : styles.categoryNameInactive
-                  }`}
-                  style={{
-                    color:
+                  <span className={styles.expandIcon}>
+                    {category.expanded ? "v" : ">"}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => toggleCategory(category.id)}
+                  className={styles.categoryButton}
+                >
+                  <span
+                    className={`${styles.categoryCheckbox} ${
+                      isCategoryActive(category.id)
+                        ? styles.categoryCheckboxActive
+                        : styles.categoryCheckboxInactive
+                    }`}
+                  >
+                    [{isCategoryActive(category.id) ? "X" : " "}]
+                  </span>
+                  <span
+                    className={`${styles.categoryName} ${
                       hasAnyActiveChildren(category)
+                        ? styles.categoryNameActive
+                        : styles.categoryNameInactive
+                    }`}
+                    style={{
+                      color: hasAnyActiveChildren(category)
                         ? getCategoryColor(category.slug)
                         : undefined,
-                  }}
-                >
-                  {category.name}
-                </span>
-              </button>
-
-              {category.tags.length > 0 && (
-                <span className={getActiveTags(category) > 0 ? styles.tagCountActive : styles.tagCount}>
-                  [{getActiveTags(category)}]
-                </span>
-              )}
-            </div>
-
-            {category.expanded && category.tags.length > 0 && (
-              <div className={styles.tagsContainer}>
-                {category.tags.map((tag, index) => (
-                  <button
-                    key={tag.id}
-                    onClick={() => handleToggleTag(tag.id, category.id)}
-                    className={styles.tagButton}
+                    }}
                   >
-                    <span className={styles.tagConnector}>
-                      {index === category.tags.length - 1 ? "L" : "|"}
-                    </span>
-                    <span
-                      className={`${styles.tagCheckbox} ${
-                        isTagActive(tag.id)
-                          ? styles.tagCheckboxActive
-                          : styles.tagCheckboxInactive
-                      }`}
-                    >
-                      [{isTagActive(tag.id) ? "X" : " "}]
-                    </span>
-                    <span
-                      className={`${styles.tagName} ${
-                        isTagActive(tag.id)
-                          ? styles.tagNameActive
-                          : styles.tagNameInactive
-                      }`}
-                    >
-                      {tag.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+                    {category.name}
+                  </span>
+                </button>
 
-      {/* Auth Section */}
-      <div className={styles.authSection}>
-        {status === "loading" ? (
-          <div className={styles.authLoading}>
-            <span className={styles.authText}>LOADING...</span>
-          </div>
-        ) : session?.user ? (
-          <div className={styles.authUser}>
-            {hasEditPermission() && (
-              <button
-                onClick={() => router.push('/broadcast')}
-                className={styles.broadcastButton}
-              >
-                <span className={styles.broadcastPrompt}>&gt;</span>
-                <span className={styles.broadcastText}>BROADCAST_TRANSMISSION</span>
-              </button>
-            )}
-            <div className={styles.userInfo}>
-              <span className={styles.authPrompt}>&gt;</span>
-              <span className={styles.userName}>{session.user.name}</span>
-              {(session.user as any).roles?.length > 0 && (
-                <div className={styles.rolesBadges}>
-                  {(session.user as any).roles.map((role: string) => (
-                    <span key={role} className={styles.roleBadge}>
-                      [{role.toUpperCase()}]
-                    </span>
+                {category.tags.length > 0 && (
+                  <span
+                    className={
+                      getActiveTags(category) > 0
+                        ? styles.tagCountActive
+                        : styles.tagCount
+                    }
+                  >
+                    [{getActiveTags(category)}]
+                  </span>
+                )}
+              </div>
+
+              {category.expanded && category.tags.length > 0 && (
+                <div className={styles.tagsContainer}>
+                  {category.tags.map((tag, index) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => handleToggleTag(tag.id, category.id)}
+                      className={styles.tagButton}
+                    >
+                      <span className={styles.tagConnector}>
+                        {index === category.tags.length - 1 ? "L" : "|"}
+                      </span>
+                      <span
+                        className={`${styles.tagCheckbox} ${
+                          isTagActive(tag.id)
+                            ? styles.tagCheckboxActive
+                            : styles.tagCheckboxInactive
+                        }`}
+                      >
+                        [{isTagActive(tag.id) ? "X" : " "}]
+                      </span>
+                      <span
+                        className={`${styles.tagName} ${
+                          isTagActive(tag.id)
+                            ? styles.tagNameActive
+                            : styles.tagNameInactive
+                        }`}
+                      >
+                        {tag.name}
+                      </span>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
-            <button
-              onClick={() => signOut()}
-              className={styles.authButton}
-            >
-              <span className={styles.authButtonText}>LOGOUT</span>
-            </button>
-          </div>
-        ) : (
-          <div className={styles.authLogin}>
-            <button
-              onClick={async () => {
-                setIsSigningIn(true);
-                await signIn("discord");
-              }}
-              disabled={isSigningIn}
-              className={styles.authButton}
-            >
-              <span className={styles.authPrompt}>&gt;</span>
-              <span className={styles.authButtonText}>
-                {isSigningIn ? "CONNECTING..." : "LOGIN"}
-              </span>
-            </button>
-          </div>
-        )}
-      </div>
-    </aside>
+          ))}
+        </div>
+
+        {/* Auth Section */}
+        <div className={styles.authSection}>
+          {status === "loading" ? (
+            <div className={styles.authLoading}>
+              <span className={styles.authText}>LOADING...</span>
+            </div>
+          ) : session?.user ? (
+            <div className={styles.authUser}>
+              {hasEditPermission() && (
+                <button
+                  onClick={() => router.push("/broadcast")}
+                  className={styles.broadcastButton}
+                >
+                  <span className={styles.broadcastPrompt}>&gt;</span>
+                  <span className={styles.broadcastText}>
+                    BROADCAST_TRANSMISSION
+                  </span>
+                </button>
+              )}
+              <div className={styles.userInfo}>
+                <span className={styles.authPrompt}>&gt;</span>
+                <span className={styles.userName}>{session.user.name}</span>
+                {(session.user as any).roles?.length > 0 && (
+                  <div className={styles.rolesBadges}>
+                    {(session.user as any).roles.map((role: string) => (
+                      <span key={role} className={styles.roleBadge}>
+                        [{role.toUpperCase()}]
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button onClick={() => signOut()} className={styles.authButton}>
+                <span className={styles.authButtonText}>LOGOUT</span>
+              </button>
+            </div>
+          ) : (
+            <div className={styles.authLogin}>
+              <button
+                onClick={async () => {
+                  setIsSigningIn(true);
+                  await signIn("discord");
+                }}
+                disabled={isSigningIn}
+                className={styles.authButton}
+              >
+                <span className={styles.authPrompt}>&gt;</span>
+                <span className={styles.authButtonText}>
+                  {isSigningIn ? "CONNECTING..." : "LOGIN"}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      </aside>
     </>
   );
 }

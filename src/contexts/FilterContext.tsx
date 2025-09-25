@@ -17,17 +17,13 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [selectedFilters, setSelectedFilters] = useState<Set<string>>(new Set());
 
   const toggleFilter = (filterId: string) => {
-    console.log('FilterContext: Toggling filter', filterId);
     setSelectedFilters((prev) => {
       const newFilters = new Set(prev);
       if (newFilters.has(filterId)) {
         newFilters.delete(filterId);
-        console.log('FilterContext: Removed filter', filterId);
       } else {
         newFilters.add(filterId);
-        console.log('FilterContext: Added filter', filterId);
       }
-      console.log('FilterContext: New filters', Array.from(newFilters));
       return newFilters;
     });
   };

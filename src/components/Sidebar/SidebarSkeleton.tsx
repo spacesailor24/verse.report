@@ -22,13 +22,13 @@ export default function SidebarSkeleton() {
         {/* Category skeletons with actual UI elements */}
         <div className={styles.categoriesContainer}>
           {[
-            { categoryWidth: '40px' }, // SHIPS
-            { categoryWidth: '60px' }, // PATCHES
-            { categoryWidth: '75px' }, // CREATURES
-            { categoryWidth: '70px' }, // LOCATIONS
-            { categoryWidth: '50px' }, // EVENTS
-            { categoryWidth: '65px' } // FEATURES
-          ].map((category, i) => (
+            'skeletonCategory1', // SHIPS
+            'skeletonCategory2', // PATCHES
+            'skeletonCategory3', // CREATURES
+            'skeletonCategory4', // LOCATIONS
+            'skeletonCategory5', // EVENTS
+            'skeletonCategory6'  // FEATURES
+          ].map((skeletonClass, i) => (
             <div key={i} className={styles.categoryGroup}>
               <div className={styles.categoryHeader}>
                 <button className={styles.expandButton}>
@@ -38,14 +38,7 @@ export default function SidebarSkeleton() {
                   <span className={`${styles.categoryCheckbox} ${styles.categoryCheckboxInactive}`}>
                     [ ]
                   </span>
-                  <div style={{
-                    width: category.categoryWidth,
-                    height: '11px',
-                    backgroundColor: 'var(--bg-surface-subtle)',
-                    borderRadius: '1px',
-                    display: 'inline-block',
-                    marginLeft: '4px'
-                  }}></div>
+                  <div className={styles[skeletonClass]}></div>
                 </button>
                 <span className={styles.tagCount}>[0]</span>
               </div>
