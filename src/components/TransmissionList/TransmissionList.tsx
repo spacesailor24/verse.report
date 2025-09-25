@@ -113,7 +113,11 @@ export default function TransmissionList({
           fetchTransmissions(currentPage + 1, true);
         }
       },
-      { threshold: 0.1 }
+      {
+        threshold: 0.1,
+        // Add root margin to trigger loading earlier (500px before reaching the target)
+        rootMargin: '500px 0px 500px 0px'
+      }
     );
 
     const currentTarget = observerTarget.current;
@@ -161,10 +165,8 @@ export default function TransmissionList({
         hasActiveFilters={hasActiveFilters()}
         loadingMore={loadingMore}
         sharedTransmissionId={sharedTransmissionId}
+        observerTarget={observerTarget}
       />
-      {/* Infinite scroll trigger */}
-      <div ref={observerTarget} style={{ height: '20px', margin: '20px 0' }}>
-      </div>
     </>
   );
 }

@@ -13,6 +13,7 @@ interface TransmissionListClientProps {
   hasActiveFilters?: boolean;
   loadingMore?: boolean;
   sharedTransmissionId?: string | null;
+  observerTarget?: React.RefObject<HTMLDivElement>;
 }
 
 export default function TransmissionListClient({
@@ -22,6 +23,7 @@ export default function TransmissionListClient({
   hasActiveFilters = false,
   loadingMore = false,
   sharedTransmissionId,
+  observerTarget,
 }: TransmissionListClientProps) {
   if (loading) {
     return (
@@ -124,6 +126,10 @@ export default function TransmissionListClient({
               })}
             </div>
           ))}
+        {/* Infinite scroll trigger - placed before loading skeletons */}
+        {observerTarget && !loading && (
+          <div ref={observerTarget} style={{ height: '1px' }} />
+        )}
         {loadingMore && (
           <>
             {Array.from({ length: 3 }, (_, i) => (
