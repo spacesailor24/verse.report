@@ -245,6 +245,28 @@
   font-family: var(--font-mono), monospace;
 }
 
+.sharedBadge {
+  font-size: 0.65rem;
+  font-weight: bold;
+  font-family: var(--font-mono), monospace;
+  color: var(--color-nasa);
+  background: var(--nasa-faint);
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  border: 1px solid var(--color-nasa);
+  opacity: 0.9;
+  animation: sharedBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes sharedBadgePulse {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
 .separator {
   font-size: 0.75rem;
   opacity: 0.4;
@@ -308,6 +330,12 @@
   margin-right: 1rem;
 }
 
+.topRightActions {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.25rem;
+}
+
 .title {
   font-size: 1rem;
   font-weight: bold;
@@ -368,6 +396,30 @@
 .transmissionBox:hover .openActionDisabled {
   color: var(--color-gray-dark);
   opacity: 0.4;
+}
+
+.shareAction {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-gray-dark);
+  font-size: 0.75rem;
+  font-family: var(--font-mono), monospace;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  opacity: 0.6;
+}
+
+.shareAction:hover {
+  color: var(--color-nasa);
+  opacity: 1;
+}
+
+.transmissionBox:hover .shareAction {
+  color: var(--color-nasa);
+  opacity: 0.8;
 }
 
 .editButton {
@@ -539,4 +591,47 @@
   background: var(--bg-surface-subtle);
   color: var(--color-nasa);
   font-weight: bold;
+}
+
+/* Shared transmission highlighting - persistent orange glow like hover effect */
+.sharedTransmission {
+  background: linear-gradient(
+    135deg,
+    var(--bg-surface-medium) 0%,
+    var(--nasa-trace) 100%
+  );
+  border-color: var(--color-nasa);
+  box-shadow: 0 0 30px var(--nasa-glow), inset 0 0 0 1px var(--nasa-light),
+    0 0 60px var(--nasa-subtle);
+  transform: translateY(-1px);
+}
+
+.sharedTransmission::before,
+.sharedTransmission::after {
+  opacity: 0.8;
+}
+
+.sharedTransmission .sciFiElements {
+  opacity: 1;
+}
+
+.sharedTransmission .scanLine {
+  animation: scanLine 2s ease-in-out infinite;
+}
+
+.sharedTransmission .title {
+  color: var(--color-nasa);
+}
+
+.sharedTransmission .openAction {
+  color: var(--color-nasa);
+}
+
+.sharedTransmission .shareAction {
+  color: var(--color-nasa);
+  opacity: 0.8;
+}
+
+.sharedTransmission .editButton {
+  color: var(--color-orange-bright);
 }

@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import MainContentClient from "./MainContentClient";
 
-export default function HomeClient() {
+interface HomeClientProps {
+  sharedTransmissionId?: string | null;
+}
+
+export default function HomeClient({ sharedTransmissionId }: HomeClientProps) {
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
 
   // Set up global function for Timeline to communicate year changes
@@ -17,5 +21,5 @@ export default function HomeClient() {
     };
   }, []);
 
-  return <MainContentClient selectedYear={selectedYear} />;
+  return <MainContentClient selectedYear={selectedYear} sharedTransmissionId={sharedTransmissionId} />;
 }

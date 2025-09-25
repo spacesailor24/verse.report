@@ -33,6 +33,8 @@ export interface Transmission {
 
 interface TransmissionBoxProps {
   transmission: Transmission;
+  isShared?: boolean;
+  autoExpand?: boolean;
 }
 
 const typeColors = {
@@ -61,8 +63,10 @@ const getCategoryColor = (categorySlug: string) => {
 
 export default function TransmissionBox({
   transmission,
+  isShared = false,
+  autoExpand = false
 }: TransmissionBoxProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(autoExpand);
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -106,6 +110,38 @@ export default function TransmissionBox({
     return userRoles.includes('admin') || userRoles.includes('editor');
   };
 
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the main click handler
+
+    const shareUrl = `${window.location.origin}/?shared=${transmission.id}`;
+
+    try {
+      // Try to use the Web Share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: transmission.title,
+          text: transmission.summary || 'Check out this transmission',
+          url: shareUrl,
+        });
+      } else {
+        // Fallback to clipboard copy
+        await navigator.clipboard.writeText(shareUrl);
+        // You could show a toast notification here
+        alert('Share link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback to clipboard copy if share fails
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('Share link copied to clipboard!');
+      } catch (clipboardError) {
+        console.error('Error copying to clipboard:', clipboardError);
+        alert('Unable to share or copy link');
+      }
+    }
+  };
+
   const formatDate = (date: string | Date) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
     const month = dateObj.toLocaleDateString("en-US", { month: "long" });
@@ -126,7 +162,7 @@ export default function TransmissionBox({
     <div
       className={`${styles.transmissionBox} ${
         isExpanded ? styles.expanded : ""
-      } ${!hasContent ? styles.noContent : ""}`}
+      } ${!hasContent ? styles.noContent : ""} ${isShared ? styles.sharedTransmission : ""}`}
       onClick={handleClick}
       style={{ cursor: hasContent ? 'pointer' : 'default' }}
     >
@@ -215,6 +251,12 @@ export default function TransmissionBox({
             {transmission.summary && (
               <p className={styles.summary}>{transmission.summary}</p>
             )}
+          </div>
+          <div className={styles.topRightActions}>
+            <div className={styles.shareAction} onClick={handleShareClick}>
+              <span>SHARE_TRANSMISSION</span>
+              <span>»</span>
+            </div>
           </div>
         </div>
 

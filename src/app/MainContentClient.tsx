@@ -5,9 +5,10 @@ import TransmissionList from "@/components/TransmissionList/TransmissionList";
 
 interface MainContentClientProps {
   selectedYear?: number;
+  sharedTransmissionId?: string | null;
 }
 
-export default function MainContentClient({ selectedYear }: MainContentClientProps) {
+export default function MainContentClient({ selectedYear, sharedTransmissionId }: MainContentClientProps) {
   const [selectedDate, setSelectedDate] = useState<{ year: number; month: number; day: number } | undefined>(undefined);
   const [currentViewDate, setCurrentViewDate] = useState<{ year: number; month: number; day: number } | null>(null);
   const currentViewDateRef = useRef<{ year: number; month: number; day: number } | null>(null);
@@ -203,6 +204,23 @@ export default function MainContentClient({ selectedYear }: MainContentClientPro
         });
       }
     };
+
+    (window as any).scrollToTransmission = (transmissionId: string) => {
+      const transmissionElement = document.getElementById(`transmission-${transmissionId}`);
+      if (transmissionElement && mainRef.current) {
+        const mainElement = mainRef.current;
+        const rect = transmissionElement.getBoundingClientRect();
+        const mainRect = mainElement.getBoundingClientRect();
+
+        // Calculate the scroll position to put this element near the top with some padding
+        const targetScrollTop = mainElement.scrollTop + (rect.top - mainRect.top) - 100;
+
+        mainElement.scrollTo({
+          top: Math.max(0, targetScrollTop),
+          behavior: 'smooth'
+        });
+      }
+    };
     (window as any).triggerScrollDetection = () => {
       setTimeout(() => {
         console.log('Manual scroll detection triggered');
@@ -214,13 +232,18 @@ export default function MainContentClient({ selectedYear }: MainContentClientPro
       delete (window as any).handleTimelineChange;
       delete (window as any).registerDateRef;
       delete (window as any).scrollToDate;
+      delete (window as any).scrollToTransmission;
       delete (window as any).triggerScrollDetection;
     };
   }, []);
 
   return (
     <main ref={mainRef} className="flex-1 p-4 overflow-y-auto xl:ml-80">
-      <TransmissionList selectedDate={selectedDate} selectedYear={selectedYear} />
+      <TransmissionList
+        selectedDate={selectedDate}
+        selectedYear={selectedYear}
+        sharedTransmissionId={sharedTransmissionId}
+      />
     </main>
   );
 }

@@ -9,11 +9,13 @@ import { Transmission } from "../TransmissionBox/TransmissionBox";
 interface TransmissionListProps {
   selectedDate?: { year: number; month: number; day: number };
   selectedYear?: number;
+  sharedTransmissionId?: string | null;
 }
 
 export default function TransmissionList({
   selectedDate,
   selectedYear,
+  sharedTransmissionId,
 }: TransmissionListProps) {
   const [transmissions, setTransmissions] = useState<Transmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,6 +136,22 @@ export default function TransmissionList({
     }
   }, [selectedDate]);
 
+  // Handle shared transmission scrolling
+  useEffect(() => {
+    if (sharedTransmissionId && transmissions.length > 0) {
+      // Find the shared transmission in the list
+      const sharedTransmission = transmissions.find(t => t.id === sharedTransmissionId);
+      if (sharedTransmission) {
+        // Wait for the component to render and then scroll
+        setTimeout(() => {
+          if ((window as any).scrollToTransmission) {
+            (window as any).scrollToTransmission(sharedTransmissionId);
+          }
+        }, 500);
+      }
+    }
+  }, [sharedTransmissionId, transmissions]);
+
   return (
     <>
       <TransmissionListClient
@@ -142,6 +160,7 @@ export default function TransmissionList({
         loading={loading}
         hasActiveFilters={hasActiveFilters()}
         loadingMore={loadingMore}
+        sharedTransmissionId={sharedTransmissionId}
       />
       {/* Infinite scroll trigger */}
       <div ref={observerTarget} style={{ height: '20px', margin: '20px 0' }}>

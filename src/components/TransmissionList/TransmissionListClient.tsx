@@ -12,6 +12,7 @@ interface TransmissionListClientProps {
   loading?: boolean;
   hasActiveFilters?: boolean;
   loadingMore?: boolean;
+  sharedTransmissionId?: string | null;
 }
 
 export default function TransmissionListClient({
@@ -20,6 +21,7 @@ export default function TransmissionListClient({
   loading = false,
   hasActiveFilters = false,
   loadingMore = false,
+  sharedTransmissionId,
 }: TransmissionListClientProps) {
   if (loading) {
     return (
@@ -106,12 +108,20 @@ export default function TransmissionListClient({
                   .replace(/\s/g, "_")
                   .replace(/,/g, "")}
               </div>
-              {group.transmissions.map((transmission) => (
-                <TransmissionBox
-                  key={transmission.id}
-                  transmission={transmission}
-                />
-              ))}
+              {group.transmissions.map((transmission) => {
+                const isShared = sharedTransmissionId === transmission.id;
+                const hasContent = transmission.content && transmission.content.trim().length > 0;
+
+                return (
+                  <div key={transmission.id} id={`transmission-${transmission.id}`}>
+                    <TransmissionBox
+                      transmission={transmission}
+                      isShared={isShared}
+                      autoExpand={isShared && hasContent}
+                    />
+                  </div>
+                );
+              })}
             </div>
           ))}
         {loadingMore && (
