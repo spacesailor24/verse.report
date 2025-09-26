@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import ImageModal from "../ImageModal/ImageModal";
+import YouTubeEmbed from "../YouTubeEmbed/YouTubeEmbed";
 import styles from "./TransmissionBox.module.css";
 
 export type TransmissionType = "OFFICIAL" | "LEAK" | "PREDICTION";
@@ -70,10 +71,92 @@ export default function TransmissionBox({
 }: TransmissionBoxProps) {
   const [isExpanded, setIsExpanded] = useState(autoExpand);
   const [modalImage, setModalImage] = useState<{ src: string; alt: string } | null>(null);
+  const [shareSuccess, setShareSuccess] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
 
   const hasContent = transmission.content && transmission.content.trim().length > 0;
+
+  // Helper function to check if a URL is a YouTube link
+  const isYouTubeUrl = (url: string): boolean => {
+    const youtubePatterns = [
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=/,
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\//,
+      /(?:https?:\/\/)?(?:www\.)?youtu\.be\//,
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/v\//
+    ];
+    return youtubePatterns.some(pattern => pattern.test(url));
+  };
+
+  // Split content into parts, identifying YouTube URLs
+  const renderMarkdownWithEmbeds = (content: string) => {
+    // Split by lines and group them
+    const lines = content.split('\n');
+    const elements: React.ReactNode[] = [];
+    let currentMarkdownBlock = '';
+    let blockIndex = 0;
+
+    const flushMarkdownBlock = () => {
+      if (currentMarkdownBlock.trim()) {
+        elements.push(
+          <ReactMarkdown
+            key={`markdown-${blockIndex++}`}
+            components={{
+              img: ({ src, alt, ...props }) => (
+                <img
+                  {...props}
+                  src={src}
+                  alt={alt || ""}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalImage({ src: src || "", alt: alt || "" });
+                  }}
+                />
+              ),
+              a: ({ href, children, ...props }) => {
+                return (
+                  <a
+                    {...props}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {children}
+                  </a>
+                );
+              },
+            }}
+          >
+            {currentMarkdownBlock.trim()}
+          </ReactMarkdown>
+        );
+        currentMarkdownBlock = '';
+      }
+    };
+
+    lines.forEach((line) => {
+      const trimmedLine = line.trim();
+
+      // Check if this line is just a YouTube URL
+      if (trimmedLine && isYouTubeUrl(trimmedLine) && !trimmedLine.includes(' ')) {
+        // Flush any accumulated markdown content first
+        flushMarkdownBlock();
+
+        // Add YouTube embed
+        elements.push(
+          <YouTubeEmbed key={`youtube-${blockIndex++}`} url={trimmedLine} />
+        );
+      } else {
+        // Accumulate this line for markdown rendering
+        currentMarkdownBlock += line + '\n';
+      }
+    });
+
+    // Flush any remaining markdown content
+    flushMarkdownBlock();
+
+    return elements;
+  };
 
   const handleClick = () => {
     // Only allow expansion if there's content to show
@@ -127,20 +210,22 @@ export default function TransmissionBox({
           url: shareUrl,
         });
       } else {
-        // Fallback to clipboard copy
+        // Fallback to clipboard copy (silent)
         await navigator.clipboard.writeText(shareUrl);
-        // You could show a toast notification here
-        alert('Share link copied to clipboard!');
+        // Show success state
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 2000);
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      // Fallback to clipboard copy if share fails
+      // Fallback to clipboard copy if share fails (silent)
       try {
         await navigator.clipboard.writeText(shareUrl);
-        alert('Share link copied to clipboard!');
+        // Show success state
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 2000);
       } catch (clipboardError) {
         console.error('Error copying to clipboard:', clipboardError);
-        alert('Unable to share or copy link');
       }
     }
   };
@@ -256,9 +341,12 @@ export default function TransmissionBox({
             )}
           </div>
           <div className={styles.topRightActions}>
-            <div className={styles.shareAction} onClick={handleShareClick}>
-              <span>SHARE_TRANSMISSION</span>
-              <span>»</span>
+            <div
+              className={`${styles.shareAction} ${shareSuccess ? styles.shareActionSuccess : ''}`}
+              onClick={handleShareClick}
+            >
+              <span>{shareSuccess ? 'COPIED!' : 'SHARE_TRANSMISSION'}</span>
+              <span>{shareSuccess ? '✓' : '»'}</span>
             </div>
           </div>
         </div>
@@ -294,23 +382,7 @@ export default function TransmissionBox({
       {isExpanded && (
         <div className={styles.expandedContent}>
           <div className={styles.markdownContent}>
-            <ReactMarkdown
-              components={{
-                img: ({ src, alt, ...props }) => (
-                  <img
-                    {...props}
-                    src={src}
-                    alt={alt || ""}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setModalImage({ src: src || "", alt: alt || "" });
-                    }}
-                  />
-                ),
-              }}
-            >
-              {transmission.content}
-            </ReactMarkdown>
+            {renderMarkdownWithEmbeds(transmission.content)}
           </div>
         </div>
       )}

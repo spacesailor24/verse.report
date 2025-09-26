@@ -417,6 +417,33 @@
   opacity: 1;
 }
 
+.shareActionSuccess {
+  animation: terminalFlashGreen 0.8s ease;
+  color: #00ff00 !important;
+}
+
+@keyframes terminalFlashGreen {
+  0% {
+    color: var(--color-gray-dark);
+    transform: scale(1);
+  }
+  20% {
+    color: #00ff00;
+    transform: scale(1.05);
+    text-shadow: 0 0 10px #00ff00;
+  }
+  40% {
+    color: #00ff00;
+    transform: scale(1.02);
+    text-shadow: 0 0 20px #00ff00;
+  }
+  100% {
+    color: #00ff00;
+    transform: scale(1);
+    text-shadow: 0 0 5px #00ff00;
+  }
+}
+
 .transmissionBox:hover .shareAction {
   color: var(--color-nasa);
   opacity: 0.8;
