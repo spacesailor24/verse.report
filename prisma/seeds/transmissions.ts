@@ -114,37 +114,7 @@ export async function seedTransmissions(prisma: PrismaClient, publisherId: strin
         const typeMap: Record<string, TransmissionType> = {
           'OFFICIAL': TransmissionType.OFFICIAL,
           'LEAK': TransmissionType.LEAK,
-          'CRITICAL_ALERT': TransmissionType.OFFICIAL,
           'EVENT': TransmissionType.OFFICIAL,
-          'ANNOUNCEMENT': TransmissionType.OFFICIAL,
-          'MILITARY_ACTION': TransmissionType.OFFICIAL,
-          'DISCOVERY': TransmissionType.LEAK,
-          'MISSING_VESSEL': TransmissionType.OFFICIAL,
-          'SHIP_DEPLOYMENT': TransmissionType.OFFICIAL,
-          'ARCHAEOLOGICAL': TransmissionType.PREDICTION,
-          'MILITARY_UPGRADE': TransmissionType.OFFICIAL,
-          'NAVIGATION_WARNING': TransmissionType.OFFICIAL,
-          'VICTORY': TransmissionType.OFFICIAL,
-          'SHIP_TEST': TransmissionType.OFFICIAL,
-          'FIRST_CONTACT': TransmissionType.PREDICTION,
-          'XENOBIOLOGY': TransmissionType.LEAK,
-          'INDUSTRIAL_ACCIDENT': TransmissionType.OFFICIAL,
-          'MILITARY_DEPLOYMENT': TransmissionType.OFFICIAL,
-          'SALVAGE_DISCOVERY': TransmissionType.LEAK,
-          'LOGISTICS_ACHIEVEMENT': TransmissionType.OFFICIAL,
-          'SHIP_UPGRADE': TransmissionType.OFFICIAL,
-          'CREATURE_ENCOUNTER': TransmissionType.LEAK,
-          'PIRACY_INCIDENT': TransmissionType.OFFICIAL,
-          'RESCUE_OPERATION': TransmissionType.OFFICIAL,
-          'TRADE_ROUTE': TransmissionType.OFFICIAL,
-          'DIPLOMATIC_EVENT': TransmissionType.OFFICIAL,
-          'RACING_EVENT': TransmissionType.OFFICIAL,
-          'PATROL_ASSIGNMENT': TransmissionType.OFFICIAL,
-          'SCIENTIFIC_BREAKTHROUGH': TransmissionType.LEAK,
-          'DELIVERY_RECORD': TransmissionType.OFFICIAL,
-          'STEALTH_MISSION': TransmissionType.OFFICIAL,
-          'INTELLIGENCE_DISCOVERY': TransmissionType.PREDICTION,
-          'ESCORT_MISSION': TransmissionType.OFFICIAL,
         }
         return typeMap[type] || TransmissionType.LEAK
       }
@@ -157,7 +127,7 @@ export async function seedTransmissions(prisma: PrismaClient, publisherId: strin
           content: content,
           type: getTransmissionType(frontMatter.type),
           status: TransmissionStatus.PUBLISHED,
-          isHighlight: Math.random() > 0.7, // 30% chance of highlight
+          isHighlight: false,
           sourceId: getSourceId(frontMatter.sourceAuthor),
           sourceUrl: frontMatter.sourceUrl,
           publishedAt: new Date(frontMatter.publishedAt),
@@ -173,7 +143,7 @@ export async function seedTransmissions(prisma: PrismaClient, publisherId: strin
             data: {
               transmissionId: transmission.id,
               tagId: tag.id,
-              confidence: 95 + Math.floor(Math.random() * 5), // 95-100% confidence
+              confidence: 100,
             }
           })
         } else {

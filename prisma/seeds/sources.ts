@@ -17,83 +17,83 @@ export async function seedSources(prisma: PrismaClient) {
       sortOrder: 2
     },
     {
-      name: "ISC (Inside Star Citizen)",
+      name: "Inside Star Citizen",
       slug: "isc",
-      description: "Weekly video series from CIG",
+      description: "Video series from CIG",
       sortOrder: 3
     },
     {
-      name: "Calling All Devs",
-      slug: "calling-all-devs",
-      description: "Developer Q&A video series",
-      sortOrder: 4
-    },
-    {
       name: "Star Citizen Live",
-      slug: "star-citizen-live",
-      description: "Live developer streaming show",
-      sortOrder: 5
-    },
-    {
-      name: "Around the Verse",
-      slug: "around-the-verse",
-      description: "Weekly development update show (archived)",
-      sortOrder: 6
+      slug: "scl",
+      description: "Live video series from CIG",
+      sortOrder: 4
     },
     {
       name: "Evocati",
       slug: "evocati",
-      description: "Closed testing group leaks",
-      sortOrder: 7
-    },
-    {
-      name: "PTU",
-      slug: "ptu",
-      description: "Public Test Universe",
-      sortOrder: 8
+      description: "Leaks and information from the Evocati",
+      sortOrder: 5
     },
     {
       name: "Reddit",
       slug: "reddit",
-      description: "Community discussions and leaks",
-      sortOrder: 9
+      description: "Posts from Reddit",
+      sortOrder: 6
     },
     {
-      name: "Twitter/X",
-      slug: "twitter",
-      description: "Social media updates and announcements",
-      sortOrder: 10
+      name: "X",
+      slug: "x",
+      description: "Posts from X",
+      sortOrder: 7
     },
     {
       name: "YouTube",
       slug: "youtube",
-      description: "Video content and streams",
-      sortOrder: 11
+      description: "Video content and streams from YouTube",
+      sortOrder: 8
     },
     {
       name: "Community Manager",
       slug: "community-manager",
       description: "Official CIG community manager posts",
-      sortOrder: 12
+      sortOrder: 9
     },
     {
       name: "Developer",
       slug: "developer",
       description: "Direct developer communications",
+      sortOrder: 10
+    },
+    {
+      name: "Data Mine",
+      slug: "data-mine",
+      description: "Information from a data miner",
+      sortOrder: 11
+    },
+    {
+      name: "Discord",
+      slug: "discord",
+      description: "Information from a Discord server",
+      sortOrder: 12
+    },
+    {
+      name: "Discord - Pipeline",
+      slug: "discord-pipeline",
+      description: "Information from the Pipeline Discord server",
       sortOrder: 13
     },
     {
-      name: "Data Mining",
-      slug: "data-mining",
-      description: "Game file analysis discoveries",
+      name: "Discord - Discussing Whatever",
+      slug: "discord-discussing-whatever",
+      description: "Information from the Discussing Whatever Discord server",
       sortOrder: 14
     },
     {
-      name: "Other",
-      slug: "other",
-      description: "Miscellaneous sources",
+      name: "Anonymous",
+      slug: "anonymous",
+      description: "Information from an anonymous source",
       sortOrder: 15
-    }
+    },
   ];
 
   for (const sourceData of sources) {

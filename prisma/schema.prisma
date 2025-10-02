@@ -1,3 +1,5 @@
+// TODO Add ship manufacturer
+
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -12,6 +14,7 @@ enum TransmissionType {
   OFFICIAL
   LEAK
   PREDICTION
+  COMMENTARY
 }
 
 enum TransmissionStatus {
@@ -30,9 +33,9 @@ enum CategoryType {
 
 // Source model for reusable source references
 model Source {
-  id          Int    @id @default(autoincrement())
-  name        String @unique // Display name (e.g., "Spectrum", "CitizenCon")
-  slug        String @unique // URL-friendly version (e.g., "spectrum", "citizencon")
+  id          Int     @id @default(autoincrement())
+  name        String  @unique // Display name (e.g., "Spectrum", "CitizenCon")
+  slug        String  @unique // URL-friendly version (e.g., "spectrum", "citizencon")
   description String? @db.Text
 
   // Display order for UI
@@ -60,9 +63,9 @@ model Transmission {
   isHighlight Boolean            @default(false)
 
   // Metadata
-  sourceUrl String?
-  sourceId  Int
-  source    Source @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+  sourceUrl   String?
+  sourceId    Int
+  source      Source    @relation(fields: [sourceId], references: [id], onDelete: Restrict)
   publishedAt DateTime?
 
   // Publisher (user who created the transmission)
