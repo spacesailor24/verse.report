@@ -46,6 +46,13 @@ export async function seedCategories(prisma: PrismaClient) {
       description: 'Game mechanics, features, and gameplay systems',
       sortOrder: 6,
     },
+    {
+      name: 'Newsletter',
+      slug: 'newsletter',
+      type: CategoryType.NEWSLETTER,
+      description: 'Weekly newsletter',
+      sortOrder: 7,
+    },
   ]
 
   for (const category of categories) {

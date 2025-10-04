@@ -29,6 +29,7 @@ enum CategoryType {
   LOCATION
   EVENT
   FEATURE
+  NEWSLETTER
 }
 
 // Source model for reusable source references

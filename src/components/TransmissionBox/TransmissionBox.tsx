@@ -9,7 +9,7 @@ import ImageModal from "../ImageModal/ImageModal";
 import YouTubeEmbed from "../YouTubeEmbed/YouTubeEmbed";
 import styles from "./TransmissionBox.module.css";
 
-export type TransmissionType = "OFFICIAL" | "LEAK" | "PREDICTION";
+export type TransmissionType = "OFFICIAL" | "LEAK" | "PREDICTION" | "COMMENTARY";
 
 export interface Transmission {
   id: string;
@@ -44,12 +44,14 @@ const typeColors = {
   OFFICIAL: "var(--transmission-official)",
   LEAK: "var(--transmission-leak)",
   PREDICTION: "var(--transmission-prediction)",
+  COMMENTARY: "var(--transmission-commentary)",
 };
 
 const typeDotColors = {
   OFFICIAL: "var(--transmission-official)",
   LEAK: "var(--transmission-leak)",
   PREDICTION: "var(--transmission-prediction)",
+  COMMENTARY: "var(--transmission-commentary)",
 };
 
 const getCategoryColor = (categorySlug: string) => {
@@ -60,6 +62,7 @@ const getCategoryColor = (categorySlug: string) => {
     locations: "var(--category-location)",
     events: "var(--category-event)",
     features: "var(--category-feature)",
+    newsletter: "var(--category-newsletter)",
   };
   return colorMap[categorySlug as keyof typeof colorMap] || "#888888";
 };

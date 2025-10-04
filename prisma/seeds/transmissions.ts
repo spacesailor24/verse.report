@@ -4,43 +4,32 @@ import { join } from 'path'
 
 interface FrontMatter {
   title: string
-  subTitle: string
+  subTitle?: string
   type: string
   tags: string[]
   publishedAt: string
   sourceAuthor: string
-  sourceUrl: string | null
+  sourceUrl?: string | null
 }
 
 export async function seedTransmissions(prisma: PrismaClient, publisherId: string) {
   console.log('📡 Seeding transmissions...')
 
-  // Map sourceAuthor strings to Source records
-  const sourceAuthorMap: { [key: string]: number } = {
-    'Terra Diplomatic Corps': 13, // Developer
-    'UEE Navy': 13, // Developer
-    'Anvil Aerospace': 13, // Developer
-    'Roberts Space Industries': 13, // Developer
-    'Origin Jumpworks': 13, // Developer
-    'Aegis Dynamics': 13, // Developer
-    'Drake Interplanetary': 13, // Developer
-    'Crusader Industries': 13, // Developer
-    'MISC': 13, // Developer
-    'CIG': 13, // Developer
-    'Star Citizen': 13, // Developer
-    'CitizenCon': 2, // CitizenCon
-    'ISC': 3, // ISC
-    'Spectrum': 1, // Spectrum
-    'PTU': 8, // PTU
-    'Evocati': 7, // Evocati
-    'Reddit': 9, // Reddit
-    'Community Manager': 12, // Community Manager
-    'Developer': 13, // Developer
-  }
+  // Helper function to get sourceId from sourceAuthor slug
+  const getSourceId = async (sourceAuthorSlug: string): Promise<number> => {
+    const source = await prisma.source.findUnique({
+      where: { slug: sourceAuthorSlug }
+    })
 
-  // Helper function to get sourceId from sourceAuthor
-  const getSourceId = (sourceAuthor: string): number => {
-    return sourceAuthorMap[sourceAuthor] || 15 // Default to "Other" if not found
+    if (!source) {
+      console.warn(`Source not found for slug: ${sourceAuthorSlug}, using anonymous`)
+      const anonymousSource = await prisma.source.findUnique({
+        where: { slug: 'anonymous' }
+      })
+      return anonymousSource?.id || 1
+    }
+
+    return source.id
   }
 
   // Helper function to parse frontmatter from markdown
@@ -115,21 +104,26 @@ export async function seedTransmissions(prisma: PrismaClient, publisherId: strin
           'OFFICIAL': TransmissionType.OFFICIAL,
           'LEAK': TransmissionType.LEAK,
           'EVENT': TransmissionType.OFFICIAL,
+          'NEWSLETTER': TransmissionType.OFFICIAL,
+          'PREDICTION': TransmissionType.PREDICTION,
+          'COMMENTARY': TransmissionType.COMMENTARY,
         }
         return typeMap[type] || TransmissionType.LEAK
       }
 
       // Create transmission
+      const sourceId = await getSourceId(frontMatter.sourceAuthor)
+
       const transmission = await prisma.transmission.create({
         data: {
           title: frontMatter.title,
-          subTitle: frontMatter.subTitle,
-          content: content,
+          subTitle: frontMatter.subTitle || '',
+          content: content.trim() || '',
           type: getTransmissionType(frontMatter.type),
           status: TransmissionStatus.PUBLISHED,
           isHighlight: false,
-          sourceId: getSourceId(frontMatter.sourceAuthor),
-          sourceUrl: frontMatter.sourceUrl,
+          sourceId: sourceId,
+          sourceUrl: frontMatter.sourceUrl || null,
           publishedAt: new Date(frontMatter.publishedAt),
           publisherId: publisherId, // Assign to the specified user
         }

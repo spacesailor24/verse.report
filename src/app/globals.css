@@ -15,11 +15,13 @@
   --category-location: #9966FF;
   --category-event: #FFD700;
   --category-feature: #00FFAA;
+  --category-newsletter: #60a5fa;
 
   /* Transmission Type Colors */
   --transmission-official: #60a5fa;
   --transmission-leak: var(--accent-warning);
   --transmission-prediction: #a78bfa;
+  --transmission-commentary: #f59e0b;
 
   /* Base UI Colors */
   --color-black: #000000;

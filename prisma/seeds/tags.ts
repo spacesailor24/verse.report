@@ -10,8 +10,9 @@ export async function seedTags(prisma: PrismaClient) {
   const featureCategory = await prisma.category.findUnique({ where: { slug: 'features' } })
   const creatureCategory = await prisma.category.findUnique({ where: { slug: 'creatures' } })
   const eventCategory = await prisma.category.findUnique({ where: { slug: 'events' } })
+  const newsletterCategory = await prisma.category.findUnique({ where: { slug: 'newsletter' } })
 
-  if (!shipCategory || !patchCategory || !locationCategory || !featureCategory || !creatureCategory || !eventCategory) {
+  if (!shipCategory || !patchCategory || !locationCategory || !featureCategory || !creatureCategory || !eventCategory || !newsletterCategory) {
     throw new Error('Categories must be seeded before tags')
   }
 
@@ -30,9 +31,11 @@ export async function seedTags(prisma: PrismaClient) {
     { name: 'Perseus', slug: 'perseus', categoryId: shipCategory.id, sortOrder: 3 },
     { name: 'Apollo Medivac', slug: 'apollo-medivac', categoryId: shipCategory.id, shipFamilyId: apolloFamily.id, sortOrder: 4 },
     { name: 'Apollo Triage', slug: 'apollo-triage', categoryId: shipCategory.id, shipFamilyId: apolloFamily.id, sortOrder: 5 },
+    { name: 'Apollo Hermes', slug: 'apollo-hermes', categoryId: shipCategory.id, shipFamilyId: apolloFamily.id, sortOrder: 6 },
 
     // Creatures
     { name: 'Vanduul', slug: 'vanduul', categoryId: creatureCategory.id, sortOrder: 34 },
+    { name: 'Yormandi', slug: 'yormandi', categoryId: creatureCategory.id, sortOrder: 35 },
 
     // Locations
     { name: 'Nyx', slug: 'nyx', categoryId: locationCategory.id, sortOrder: 37 },
@@ -41,9 +44,20 @@ export async function seedTags(prisma: PrismaClient) {
 
     // Features
     { name: 'Medical Gameplay', slug: 'medical-gameplay', categoryId: featureCategory.id, description: 'Medical gameplay mechanics', sortOrder: 59 },
+    { name: 'Cargo Gameplay', slug: 'cargo-gameplay', categoryId: featureCategory.id, description: 'Cargo gameplay mechanics', sortOrder: 60 },
+    { name: 'Salvage Gameplay', slug: 'salvage-gameplay', categoryId: featureCategory.id, description: 'Salvage gameplay mechanics', sortOrder: 61 },
+    { name: 'Engineering Gameplay', slug: 'engineering-gameplay', categoryId: featureCategory.id, description: 'Engineering gameplay mechanics', sortOrder: 62 },
+    { name: 'Inventory Rework', slug: 'inventory-rework', categoryId: featureCategory.id, description: 'Inventory rework', sortOrder: 63 },
 
     // Patch tags
     { name: '4.3.1', slug: '4-3-1', categoryId: patchCategory.id, description: 'Star Citizen version 4.3.1', sortOrder: 76 },
+    { name: '4.3.2', slug: '4-3-2', categoryId: patchCategory.id, description: 'Star Citizen version 4.3.2', sortOrder: 77 },
+
+    // Events
+    { name: 'Frontier Fighters Finale', slug: 'frontier-fighters-finale', categoryId: eventCategory.id, description: 'Frontier Fighters Finale', sortOrder: 80 },
+
+    // Newsletter
+    { name: 'Newsletter', slug: 'newsletter', categoryId: newsletterCategory.id, description: 'Weekly newsletter', sortOrder: 81 },
   ]
 
   for (const tag of tags) {

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "assign-admin": "tsx scripts/assign-admin.ts",
     "list-users": "tsx scripts/list-users.ts",
+    "drop-transmissions": "tsx scripts/drop-transmissions.ts",
     "seed-transmissions": "tsx prisma/seed-transmissions.ts"
   },
   "prisma": {
