@@ -58,9 +58,9 @@ export default function TransmissionListClient({
     if (!transmission.publishedAt) return groups;
 
     const date = new Date(transmission.publishedAt);
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDate();
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
     const dateKey = `${year}-${month}-${day}`;
 
     if (!groups[dateKey]) {

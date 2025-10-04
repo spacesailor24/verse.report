@@ -236,8 +236,8 @@ export default function TransmissionBox({
 
   const formatDate = (date: string | Date) => {
     const dateObj = typeof date === "string" ? new Date(date) : date;
-    const month = dateObj.toLocaleDateString("en-US", { month: "long" });
-    const day = dateObj.getDate();
+    const month = dateObj.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
+    const day = dateObj.getUTCDate();
     const suffix =
       day === 1 || day === 21 || day === 31
         ? "st"
