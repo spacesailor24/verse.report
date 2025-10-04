@@ -161,8 +161,8 @@ function TypeDropdown({
   onChange,
   disabled
 }: {
-  value: "OFFICIAL" | "LEAK" | "PREDICTION";
-  onChange: (value: "OFFICIAL" | "LEAK" | "PREDICTION") => void;
+  value: "OFFICIAL" | "LEAK" | "PREDICTION" | "COMMENTARY";
+  onChange: (value: "OFFICIAL" | "LEAK" | "PREDICTION" | "COMMENTARY") => void;
   disabled: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -170,12 +170,13 @@ function TypeDropdown({
   const typeOptions = [
     { value: "OFFICIAL" as const, label: "OFFICIAL" },
     { value: "LEAK" as const, label: "LEAK" },
-    { value: "PREDICTION" as const, label: "PREDICTION" }
+    { value: "PREDICTION" as const, label: "PREDICTION" },
+    { value: "COMMENTARY" as const, label: "COMMENTARY" }
   ];
 
   const selectedType = typeOptions.find(option => option.value === value);
 
-  const handleSelect = (typeValue: "OFFICIAL" | "LEAK" | "PREDICTION") => {
+  const handleSelect = (typeValue: "OFFICIAL" | "LEAK" | "PREDICTION" | "COMMENTARY") => {
     onChange(typeValue);
     setIsOpen(false);
   };
@@ -222,7 +223,7 @@ function BroadcastForm() {
   const [content, setContent] = useState("");
   const [sourceId, setSourceId] = useState<number | null>(null);
   const [sourceUrl, setSourceUrl] = useState("");
-  const [type, setType] = useState<"OFFICIAL" | "LEAK" | "PREDICTION">("OFFICIAL");
+  const [type, setType] = useState<"OFFICIAL" | "LEAK" | "PREDICTION" | "COMMENTARY">("OFFICIAL");
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -605,8 +606,6 @@ function BroadcastForm() {
     publishedAt: new Date(publishedAt).toISOString(),
     publisher: {
       id: session?.user?.id || "preview-user",
-      name: session?.user?.name || "Preview User",
-      email: session?.user?.email || "preview@example.com",
     },
     tags: getSelectedTagsData,
   };

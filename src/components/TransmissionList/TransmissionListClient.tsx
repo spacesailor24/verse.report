@@ -13,7 +13,7 @@ interface TransmissionListClientProps {
   hasActiveFilters?: boolean;
   loadingMore?: boolean;
   sharedTransmissionId?: string | null;
-  observerTarget?: React.RefObject<HTMLDivElement>;
+  observerTarget?: React.RefObject<HTMLDivElement | null>;
 }
 
 export default function TransmissionListClient({
@@ -112,7 +112,7 @@ export default function TransmissionListClient({
               </div>
               {group.transmissions.map((transmission) => {
                 const isShared = sharedTransmissionId === transmission.id;
-                const hasContent = transmission.content && transmission.content.trim().length > 0;
+                const hasContent = !!(transmission.content && transmission.content.trim().length > 0);
 
                 return (
                   <div key={transmission.id} id={`transmission-${transmission.id}`}>

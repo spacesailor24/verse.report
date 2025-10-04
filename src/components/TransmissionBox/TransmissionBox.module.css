@@ -259,7 +259,8 @@
 }
 
 @keyframes sharedBadgePulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.9;
   }
   50% {
@@ -290,17 +291,18 @@
 
 .sourceLink {
   font-size: 0.75rem;
-  opacity: 0.6;
+  opacity: 1;
   text-decoration: underline;
   display: flex;
   align-items: center;
   gap: 0.25rem;
   transition: all 0.2s ease;
+  color: var(--color-orange-bright);
 }
 
 .sourceLink:hover {
-  opacity: 0.9;
-  color: var(--color-nasa);
+  opacity: 1;
+  color: var(--color-text-secondary);
 }
 
 .sourceAuthor {

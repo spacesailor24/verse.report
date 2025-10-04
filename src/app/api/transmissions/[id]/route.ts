@@ -1,39 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { requireEditor } from '@/lib/auth-helpers';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Check authentication and authorization
+    try {
+      await requireEditor();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (message === 'Forbidden') {
+        return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+      }
+      throw error;
     }
 
-    // Check if user has admin or editor role
-    const userWithRoles = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-
-    const hasEditPermission = userWithRoles?.userRoles.some(
-      (ur) => ur.role.name === 'admin' || ur.role.name === 'editor'
-    );
-
-    if (!hasEditPermission) {
-      return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
-    }
-
-    const transmissionId = params.id;
+    const { id: transmissionId } = await params;
 
     // Verify the transmission exists and get current data
     const existingTransmission = await prisma.transmission.findUnique({
@@ -64,7 +52,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Source ID is required' }, { status: 400 });
     }
 
-    if (!type || !['OFFICIAL', 'LEAK', 'PREDICTION'].includes(type)) {
+    if (!type || !['OFFICIAL', 'LEAK', 'PREDICTION', 'COMMENTARY'].includes(type)) {
       return NextResponse.json({ error: 'Valid type is required' }, { status: 400 });
     }
 
@@ -134,8 +122,6 @@ export async function PUT(
         publisher: {
           select: {
             id: true,
-            name: true,
-            email: true,
           },
         },
         source: {
@@ -161,8 +147,6 @@ export async function PUT(
       publishedAt: updatedTransmission.publishedAt?.toISOString(),
       publisher: {
         id: updatedTransmission.publisher.id,
-        name: updatedTransmission.publisher.name,
-        email: updatedTransmission.publisher.email,
       },
       tags: updatedTransmission.transmissionTags.map((tagRelation) => ({
         id: tagRelation.tag.id,
@@ -179,51 +163,39 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating transmission:', error);
 
-    // More specific error handling
+    // Log detailed error for debugging
     if (error instanceof Error) {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
 
+    // Don't expose internal error details to client
     return NextResponse.json({
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Check authentication and authorization
+    try {
+      await requireEditor();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (message === 'Forbidden') {
+        return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+      }
+      throw error;
     }
 
-    // Check if user has admin or editor role
-    const userWithRoles = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-
-    const hasEditPermission = userWithRoles?.userRoles.some(
-      (ur) => ur.role.name === 'admin' || ur.role.name === 'editor'
-    );
-
-    if (!hasEditPermission) {
-      return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
-    }
-
-    const transmissionId = params.id;
+    const { id: transmissionId } = await params;
 
     // Verify the transmission exists
     const existingTransmission = await prisma.transmission.findUnique({
@@ -247,15 +219,15 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting transmission:', error);
 
-    // More specific error handling
+    // Log detailed error for debugging
     if (error instanceof Error) {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
 
+    // Don't expose internal error details to client
     return NextResponse.json({
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }

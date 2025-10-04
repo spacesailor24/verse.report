@@ -1,33 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { requireEditor } from '@/lib/auth-helpers';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if user has admin or editor role
-    const userWithRoles = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-
-    const hasEditPermission = userWithRoles?.userRoles.some(
-      (ur) => ur.role.name === 'admin' || ur.role.name === 'editor'
-    );
-
-    if (!hasEditPermission) {
-      return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+    // Check authentication and authorization
+    try {
+      await requireEditor();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (message === 'Forbidden') {
+        return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+      }
+      throw error;
     }
 
     const { name, categoryId } = await request.json();

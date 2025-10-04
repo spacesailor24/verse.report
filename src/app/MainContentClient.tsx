@@ -40,8 +40,8 @@ export default function MainContentClient({ selectedYear, sharedTransmissionId }
       return; // No refs registered yet
     }
 
-    let targetDate = null;
-    let closestToTop = null;
+    let targetDate: string | null = null;
+    let closestToTop: string | null = null;
     let closestTopDistance = Infinity;
 
     // Find the transmission group closest to the top of the viewport
@@ -74,7 +74,7 @@ export default function MainContentClient({ selectedYear, sharedTransmissionId }
 
     if (isNearBottom) {
       // When near bottom, find the bottommost visible element
-      let bottomMostDate = null;
+      let bottomMostDate: string | null = null;
       let bottomMostPosition = -1;
 
       availableRefs.forEach(dateKey => {
@@ -102,8 +102,9 @@ export default function MainContentClient({ selectedYear, sharedTransmissionId }
       null;
 
 
-    if (targetDate && targetDate !== currentDateKey) {
-      const [year, month, day] = targetDate.split('-').map(Number);
+    if (targetDate && typeof targetDate === 'string' && targetDate !== currentDateKey) {
+      const dateString: string = targetDate;
+      const [year, month, day] = dateString.split('-').map(Number);
       const newViewDate = { year, month, day };
       currentViewDateRef.current = newViewDate;
       setCurrentViewDate(newViewDate);

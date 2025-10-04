@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireEditor } from "@/lib/auth-helpers";
 
 export async function GET() {
   try {
@@ -11,10 +11,17 @@ export async function GET() {
       ]
     });
 
-    return NextResponse.json({
-      sources,
-      total: sources.length,
-    });
+    return NextResponse.json(
+      {
+        sources,
+        total: sources.length,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching sources:", error);
     return NextResponse.json(
@@ -26,30 +33,18 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check if user has admin or editor role
-    const userWithRoles = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-
-    const hasEditPermission = userWithRoles?.userRoles.some(
-      (ur) => ur.role.name === "admin" || ur.role.name === "editor"
-    );
-
-    if (!hasEditPermission) {
-      return NextResponse.json({ error: "Forbidden - insufficient permissions" }, { status: 403 });
+    // Check authentication and authorization
+    try {
+      await requireEditor();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (message === 'Forbidden') {
+        return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+      }
+      throw error;
     }
 
     const { name, description } = await request.json();

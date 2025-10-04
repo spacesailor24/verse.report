@@ -4,21 +4,39 @@ import { useState, useEffect } from 'react';
 import SidebarClient from './SidebarClient';
 import SidebarSkeleton from './SidebarSkeleton';
 
-interface Category {
+interface ShipFamily {
   id: string;
   name: string;
   slug: string;
   sortOrder: number;
-  tags: Array<{
-    id: string;
-    name: string;
-    slug: string;
-    sortOrder: number;
-    shipFamily: {
-      id: string;
-      name: string;
-    } | null;
-  }>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string | null;
+  categoryId: string;
+  shipFamilyId: string | null;
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+  shipFamily: ShipFamily | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  type: string;
+  description: string | null;
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+  tags: Tag[];
 }
 
 export default function Sidebar() {

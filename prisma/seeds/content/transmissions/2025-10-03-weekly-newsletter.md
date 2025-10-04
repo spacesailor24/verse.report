@@ -1,5 +1,6 @@
 ---
-title: October 3rd 2025 Weekly Newsletter Sneak Peak
+title: October 3rd 2025 Weekly Newsletter
+subTitle: Contains a sneak peak of the AI FPS turret
 type: NEWSLETTER
 tags:
   - newsletter

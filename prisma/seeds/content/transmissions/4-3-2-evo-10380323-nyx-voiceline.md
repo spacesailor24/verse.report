@@ -1,6 +1,6 @@
 ---
 title: Station Raid Missions in Nyx Voicelines
-subTitle: 'Found voice lines in 4.3.2 EVO PTU 10380323 build'
+subTitle: Found voice lines in 4.3.2 EVO PTU 10380323 build
 type: LEAK
 tags:
   - 4-3-2

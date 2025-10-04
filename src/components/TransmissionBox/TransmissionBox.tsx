@@ -23,8 +23,6 @@ export interface Transmission {
   publishedAt: string | Date;
   publisher: {
     id: string;
-    name: string | null;
-    email: string;
   };
   tags: Array<{
     id: string;
@@ -112,7 +110,10 @@ export default function TransmissionBox({
                   alt={alt || ""}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setModalImage({ src: src || "", alt: alt || "" });
+                    setModalImage({
+                      src: typeof src === 'string' ? src : "",
+                      alt: alt || ""
+                    });
                   }}
                 />
               ),

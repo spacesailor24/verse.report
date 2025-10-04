@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { requireEditor } from '@/lib/auth-helpers';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -98,8 +98,6 @@ export async function GET(request: NextRequest) {
         publisher: {
           select: {
             id: true,
-            name: true,
-            email: true,
           },
         },
         source: {
@@ -130,8 +128,6 @@ export async function GET(request: NextRequest) {
       publishedAt: transmission.publishedAt?.toISOString(),
       publisher: {
         id: transmission.publisher.id,
-        name: transmission.publisher.name,
-        email: transmission.publisher.email,
       },
       tags: transmission.transmissionTags.map((tagRelation) => ({
         id: tagRelation.tag.id,
@@ -160,30 +156,20 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check if user has admin or editor role
-    const userWithRoles = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-
-    const hasEditPermission = userWithRoles?.userRoles.some(
-      (ur) => ur.role.name === 'admin' || ur.role.name === 'editor'
-    );
-
-    if (!hasEditPermission) {
-      return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+    // Check authentication and authorization
+    let userId: string;
+    try {
+      const auth = await requireEditor();
+      userId = auth.userId;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      if (message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      if (message === 'Forbidden') {
+        return NextResponse.json({ error: 'Forbidden - insufficient permissions' }, { status: 403 });
+      }
+      throw error;
     }
 
     const { title, subtitle, content, sourceId, sourceUrl, type, publishedAt, tagIds } = await request.json();
@@ -205,7 +191,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Source ID is required' }, { status: 400 });
     }
 
-    if (!type || !['OFFICIAL', 'LEAK', 'PREDICTION'].includes(type)) {
+    if (!type || !['OFFICIAL', 'LEAK', 'PREDICTION', 'COMMENTARY'].includes(type)) {
       return NextResponse.json({ error: 'Valid type is required' }, { status: 400 });
     }
 
@@ -254,7 +240,7 @@ export async function POST(request: NextRequest) {
         type,
         status: 'PUBLISHED',
         publishedAt: publishedDate,
-        publisherId: session.user.id,
+        publisherId: userId,
         transmissionTags: {
           create: validatedTagIds.map(tagId => ({
             tagId,
@@ -274,8 +260,6 @@ export async function POST(request: NextRequest) {
         publisher: {
           select: {
             id: true,
-            name: true,
-            email: true,
           },
         },
         source: {
@@ -300,8 +284,6 @@ export async function POST(request: NextRequest) {
       publishedAt: newTransmission.publishedAt?.toISOString(),
       publisher: {
         id: newTransmission.publisher.id,
-        name: newTransmission.publisher.name,
-        email: newTransmission.publisher.email,
       },
       tags: newTransmission.transmissionTags.map((tagRelation) => ({
         id: tagRelation.tag.id,
@@ -318,15 +300,15 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating transmission:', error);
 
-    // More specific error handling
+    // Log detailed error for debugging
     if (error instanceof Error) {
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
     }
 
+    // Don't expose internal error details to client
     return NextResponse.json({
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }
