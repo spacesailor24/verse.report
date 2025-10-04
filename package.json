@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "prisma generate",
     "assign-admin": "tsx scripts/assign-admin.ts",
     "list-users": "tsx scripts/list-users.ts",
     "drop-transmissions": "tsx scripts/drop-transmissions.ts",
