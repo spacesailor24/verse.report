@@ -9,9 +9,11 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "assign-admin": "tsx scripts/assign-admin.ts",
+    "assign-editor": "tsx scripts/assign-editor.ts",
     "list-users": "tsx scripts/list-users.ts",
     "drop-transmissions": "tsx scripts/drop-transmissions.ts",
-    "seed-transmissions": "tsx prisma/seed-transmissions.ts"
+    "seed-transmissions": "tsx prisma/seed-transmissions.ts",
+    "sync-prod-to-dev": "tsx scripts/sync-prod-to-dev.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
