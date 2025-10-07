@@ -1,3 +1,19 @@
+## Getting Started
+
+1. `pnpm i` To install dependencies
+2. `docker-compose up -d` To create the PostgreSQL database
+3. `cp .env.example .env` To create the environment variables file
+   - Fill in the `DISCORD_CLIENT_SECRET` variable, everything else is setup for dev already
+4. `pnpx prisma db push` To push the schema to the database
+5. `pnpx prisma generate` To generate the Prisma client
+6. `pnpx prisma db seed` To seed the database
+7. `pnpm dev` To run the development server
+8. Open [http://localhost:3000](http://localhost:3000)
+9. Auth with Discord to create a user in the database
+10. Run `pnpm list-users` to see the users in the database
+11. Use the `Email: me@email.com` as the input for: `pnpm assign-admin` to assign the admin role to the user like so: `pnpm assign-admin me@email.com`
+12. Run the transmissions seeding script: `pnpm seed-transmissions` 
+
 ## Database Setup
 
 ### PostgreSQL with Docker
@@ -60,29 +76,3 @@ pnpm add @prisma/client
 # Update Prisma client after schema changes
 pnpx prisma generate
 ```
-
-## Getting Started
-
-First, start the database and set up Prisma:
-
-```bash
-# 1. Start PostgreSQL
-docker-compose up -d
-
-# 2. Push schema to database
-pnpx prisma db push
-
-# 3. Generate Prisma client
-pnpx prisma generate
-
-# 4. (Optional) Seed database
-pnpx prisma db seed
-```
-
-Then run the development server:
-
-```bash
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
